@@ -203,23 +203,32 @@ body {
   --shadow-brutal-sm: 3px 3px 0 0 var(--ink);
 }
 
-/* Theme sweep transition - circular reveal from toggle button */
+/* Theme sweep transition - circular reveal from toggle button.
+   Kill the UA default cross-fade so neither layer flashes opacity
+   before our JS clip-path animation takes over. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation: none;
+  animation: none !important;
   mix-blend-mode: normal;
+  opacity: 1;
 }
-/* Going to dark: new (dark) sweeps in on top of old (light) */
+/* Going to dark: new (dark) sweeps in on top of old (light).
+   Hide the new layer initially so there's no flash before the
+   JS animation's first keyframe applies. */
 ::view-transition-old(root) {
   z-index: 1;
 }
 ::view-transition-new(root) {
   z-index: 9999;
+  clip-path: circle(0 at 50% 50%);
 }
-/* Going to light: old (dark) sweeps out, revealing new (light) underneath */
+/* Going to light: old (dark) sweeps out, revealing new (light) beneath.
+   Old layer must stay fully covering until JS animation starts. */
 .theme-sweep-out::view-transition-old(root) {
   z-index: 9999;
+  clip-path: circle(150vmax at 50% 50%);
 }
 .theme-sweep-out::view-transition-new(root) {
   z-index: 1;
+  clip-path: none;
 }
