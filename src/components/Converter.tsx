@@ -395,7 +395,15 @@ export function Converter() {
               v1.0 / Browser-native / No upload
             </span>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <Link
+              to="/colors"
+              className="font-mono text-[10px] sm:text-xs uppercase tracking-widest border-2 border-ink px-2.5 py-1 hover:bg-[var(--accent-lime)]"
+            >
+              /colors
+            </Link>
+            <ThemeToggle />
+          </div>
         </div>
         <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
           BULK
