@@ -37,6 +37,22 @@ export function isNonRetryableConversionError(err: unknown) {
   return err instanceof ConversionError && !err.retryable;
 }
 
+// Normalize whatever shape a HEIC decoder throws into a readable string.
+// libheif-based decoders sometimes throw { code, subcode } instead of an Error.
+function formatDecoderError(err: unknown): string {
+  if (err instanceof Error && err.message) return err.message;
+  const e = err as { message?: string; code?: unknown; subcode?: unknown } | null;
+  if (e?.message) return e.message;
+  if (e && e.code !== undefined) {
+    return `libheif code ${String(e.code)}/${String(e.subcode)}`;
+  }
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return String(err);
+  }
+}
+
 // Sniff the ISO-BMFF "ftyp" box to confirm a file is actually HEIC/HEIF.
 // HEIC files start with: [4 bytes size][ftyp][brand]. Brand is one of
 // heic, heix, hevc, hevx, mif1, msf1, heim, heis, hevm, hevs.
