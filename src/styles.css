@@ -163,23 +163,22 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
-body {
-  font-family: var(--font-display);
+html {
+  background-color: var(--paper);
   background-image:
-    linear-gradient(var(--ink) 1px, transparent 1px),
-    linear-gradient(90deg, var(--ink) 1px, transparent 1px);
+    linear-gradient(color-mix(in oklch, var(--ink) 12%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklch, var(--ink) 12%, transparent) 1px, transparent 1px);
   background-size: 60px 60px;
   background-position: -1px -1px;
-  background-color: var(--paper);
-  background-blend-mode: normal;
+  /* Opt the root into the view-transition snapshot so the
+     paper/grid background sweeps with the theme change. */
+  view-transition-name: root;
 }
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background: var(--paper);
-  opacity: 0.96;
-  pointer-events: none;
-  z-index: -1;
+
+body {
+  font-family: var(--font-display);
+  background: transparent;
+  color: var(--ink);
 }
 
 .brutal-card {
