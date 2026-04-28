@@ -486,6 +486,80 @@ export function Converter() {
         </div>
       )}
 
+      {/* Zip jobs panel */}
+      {zipJobs.length > 0 && (
+        <div className="mt-8">
+          <div className="font-mono text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
+            <span className="inline-block h-2 w-2 bg-[var(--accent-lime)] border border-ink" />
+            Archives ({zipJobs.length})
+          </div>
+          <ul className="space-y-2">
+            {zipJobs.map((z) => (
+              <li
+                key={z.id}
+                className="brutal-card-sm p-4"
+                style={{
+                  background:
+                    z.stage === "done"
+                      ? "color-mix(in oklch, var(--accent-lime) 25%, var(--paper))"
+                      : z.stage === "error"
+                      ? "color-mix(in oklch, var(--destructive) 18%, var(--paper))"
+                      : "var(--paper)",
+                }}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`h-10 w-10 shrink-0 flex items-center justify-center font-mono text-xs font-bold border-2 border-ink ${
+                      z.stage === "done"
+                        ? "bg-[var(--accent-lime)]"
+                        : z.stage === "error"
+                        ? "bg-destructive text-destructive-foreground"
+                        : "bg-ink text-paper animate-pulse"
+                    }`}
+                  >
+                    {z.stage === "done" ? "✓" : z.stage === "error" ? "!" : "ZIP"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <div className="font-mono text-sm truncate font-bold">
+                        {z.name}
+                      </div>
+                      <div className="font-mono text-[10px] uppercase tracking-widest shrink-0 text-ink/60">
+                        {ZIP_STAGE_LABEL[z.stage]}
+                      </div>
+                    </div>
+                    <div className="font-mono text-xs text-ink/60 mt-0.5 truncate">
+                      {formatBytes(z.size)}
+                      {z.total > 0 &&
+                        ` · ${z.extracted}/${z.total} images`}
+                      {z.skipped > 0 && ` · ${z.skipped} skipped`}
+                      {z.currentEntry && ` · ${z.currentEntry}`}
+                      {z.error && ` · ${z.error}`}
+                    </div>
+                  </div>
+                  {(z.stage === "done" || z.stage === "error") && (
+                    <button
+                      onClick={() => dismissZip(z.id)}
+                      className="px-3 py-1 font-mono text-xs border-2 border-ink hover:bg-ink hover:text-paper"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+                <div className="mt-3 h-1.5 border border-ink bg-paper overflow-hidden">
+                  <div
+                    className={`h-full transition-[width] duration-150 ease-out ${
+                      z.stage === "error" ? "bg-destructive" : "bg-[var(--accent-lime)]"
+                    }`}
+                    style={{ width: `${z.progress}%` }}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* File list */}
       {items.length > 0 && (
         <ul className="mt-6 space-y-2">
