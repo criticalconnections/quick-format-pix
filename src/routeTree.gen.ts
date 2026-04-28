@@ -10,7 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PasswordsRouteImport } from './routes/passwords'
-import { Route as HeicRouteImport } from './routes/heic'
+import { Route as ImgconvertRouteImport } from './routes/imgconvert'
 import { Route as ColorsRouteImport } from './routes/colors'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -19,9 +19,9 @@ const PasswordsRoute = PasswordsRouteImport.update({
   path: '/passwords',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HeicRoute = HeicRouteImport.update({
-  id: '/heic',
-  path: '/heic',
+const ImgconvertRoute = ImgconvertRouteImport.update({
+  id: '/imgconvert',
+  path: '/imgconvert',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ColorsRoute = ColorsRouteImport.update({
@@ -38,34 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/colors': typeof ColorsRoute
-  '/heic': typeof HeicRoute
+  '/imgconvert': typeof ImgconvertRoute
   '/passwords': typeof PasswordsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/colors': typeof ColorsRoute
-  '/heic': typeof HeicRoute
+  '/imgconvert': typeof ImgconvertRoute
   '/passwords': typeof PasswordsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/colors': typeof ColorsRoute
-  '/heic': typeof HeicRoute
+  '/imgconvert': typeof ImgconvertRoute
   '/passwords': typeof PasswordsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/colors' | '/heic' | '/passwords'
+  fullPaths: '/' | '/colors' | '/imgconvert' | '/passwords'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/colors' | '/heic' | '/passwords'
-  id: '__root__' | '/' | '/colors' | '/heic' | '/passwords'
+  to: '/' | '/colors' | '/imgconvert' | '/passwords'
+  id: '__root__' | '/' | '/colors' | '/imgconvert' | '/passwords'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ColorsRoute: typeof ColorsRoute
-  HeicRoute: typeof HeicRoute
+  ImgconvertRoute: typeof ImgconvertRoute
   PasswordsRoute: typeof PasswordsRoute
 }
 
@@ -78,11 +78,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PasswordsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/heic': {
-      id: '/heic'
-      path: '/heic'
-      fullPath: '/heic'
-      preLoaderRoute: typeof HeicRouteImport
+    '/imgconvert': {
+      id: '/imgconvert'
+      path: '/imgconvert'
+      fullPath: '/imgconvert'
+      preLoaderRoute: typeof ImgconvertRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/colors': {
@@ -105,7 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ColorsRoute: ColorsRoute,
-  HeicRoute: HeicRoute,
+  ImgconvertRoute: ImgconvertRoute,
   PasswordsRoute: PasswordsRoute,
 }
 export const routeTree = rootRouteImport
