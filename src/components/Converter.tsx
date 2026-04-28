@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import JSZip from "jszip";
 import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { usePageEnter, useScrollReveal } from "@/lib/animations";
 import {
   ACCEPTED_INPUT,
   convertImage,
@@ -384,10 +385,17 @@ export function Converter() {
   };
   const dismissZip = (id: string) => setZipJobs((prev) => prev.filter((z) => z.id !== id));
 
+  const pageRef = usePageEnter<HTMLDivElement>();
+  const revealRoot = useScrollReveal<HTMLDivElement>("[data-reveal-scroll]", [
+    items.length,
+    zipJobs.length,
+  ]);
+
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-12">
+    <div ref={pageRef}>
+      <div ref={revealRoot} className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-12">
       {/* Header */}
-      <header className="mb-8 sm:mb-10">
+      <header className="mb-8 sm:mb-10" data-reveal>
         <div className="flex items-center justify-between mb-4 gap-3">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className="h-3 w-3 shrink-0 bg-[var(--accent-lime)] border-2 border-ink" />
