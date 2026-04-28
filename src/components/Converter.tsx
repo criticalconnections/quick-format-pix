@@ -384,26 +384,26 @@ export function Converter() {
   const dismissZip = (id: string) => setZipJobs((prev) => prev.filter((z) => z.id !== id));
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-12">
       {/* Header */}
-      <header className="mb-10">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="h-3 w-3 bg-[var(--accent-lime)] border-2 border-ink" />
-            <span className="font-mono text-xs tracking-widest uppercase">
+      <header className="mb-8 sm:mb-10">
+        <div className="flex items-center justify-between mb-4 gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="h-3 w-3 shrink-0 bg-[var(--accent-lime)] border-2 border-ink" />
+            <span className="font-mono text-[10px] sm:text-xs tracking-widest uppercase truncate">
               v1.0 / Browser-native / No upload
             </span>
           </div>
           <ThemeToggle />
         </div>
-        <h1 className="font-display text-6xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
+        <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
           BULK
           <br />
           <span className="bg-[var(--accent-lime)] px-3 -ml-1 inline-block">CONVERT</span>
           <br />
           IMAGES.
         </h1>
-        <p className="mt-6 font-mono text-sm max-w-md text-ink/70">
+        <p className="mt-5 sm:mt-6 font-mono text-sm max-w-md text-ink/70">
           Drop HEIC, JPG, PNG, WEBP, GIF, BMP. Pick a target format. Done — everything stays in your
           browser.
         </p>
@@ -418,7 +418,7 @@ export function Converter() {
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
         onClick={() => inputRef.current?.click()}
-        className={`brutal-card cursor-pointer p-10 text-center transition-all ${
+        className={`brutal-card cursor-pointer p-6 sm:p-10 text-center transition-all ${
           dragOver ? "translate-x-[-3px] translate-y-[-3px]" : ""
         }`}
         style={{
@@ -433,17 +433,17 @@ export function Converter() {
           className="hidden"
           onChange={(e) => e.target.files && addFiles(e.target.files)}
         />
-        <div className="font-display text-3xl font-bold mb-2">
-          {dragOver ? "DROP IT" : "DRAG FILES OR .ZIP HERE"}
+        <div className="font-display text-2xl sm:text-3xl font-bold mb-2">
+          {dragOver ? "DROP IT" : <><span className="sm:hidden">TAP TO ADD FILES</span><span className="hidden sm:inline">DRAG FILES OR .ZIP HERE</span></>}
         </div>
-        <div className="font-mono text-xs uppercase tracking-widest text-ink/60">
-          or click to browse · images + zip archives supported
+        <div className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-ink/60">
+          <span className="hidden sm:inline">or click to browse · </span>images + zip archives supported
         </div>
       </div>
 
       {/* Controls */}
-      <div className="grid md:grid-cols-2 gap-6 mt-8">
-        <div className="brutal-card-sm p-6">
+      <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
+        <div className="brutal-card-sm p-5 sm:p-6">
           <div className="font-mono text-xs uppercase tracking-widest mb-3">01 / Output format</div>
           <div className="flex gap-2">
             {FORMATS.map((f) => (
@@ -460,7 +460,7 @@ export function Converter() {
           </div>
         </div>
 
-        <div className="brutal-card-sm p-6">
+        <div className="brutal-card-sm p-5 sm:p-6">
           <div className="font-mono text-xs uppercase tracking-widest mb-3 flex justify-between">
             <span>02 / Quality</span>
             <span>{quality}%</span>
@@ -482,8 +482,8 @@ export function Converter() {
 
       {/* Action bar + overall progress */}
       {items.length > 0 && (
-        <div className="mt-8 space-y-4">
-          <div className="flex flex-wrap gap-3 items-center justify-between">
+        <div className="mt-6 sm:mt-8 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:items-center sm:justify-between">
             <div className="font-mono text-xs uppercase tracking-widest">
               {stats.done}/{stats.total} done
               {stats.failed > 0 && ` · ${stats.failed} failed`}
@@ -491,11 +491,11 @@ export function Converter() {
               {formatBytes(stats.totalIn)}
               {stats.totalOut > 0 && ` → ${formatBytes(stats.totalOut)}`}
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="grid grid-cols-2 sm:flex gap-2 sm:flex-wrap">
               <button
                 onClick={clearAll}
                 disabled={busy}
-                className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-ink hover:text-paper disabled:opacity-40"
+                className="px-4 py-2.5 sm:py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-ink hover:text-paper disabled:opacity-40"
               >
                 Clear
               </button>
@@ -503,7 +503,7 @@ export function Converter() {
                 <button
                   onClick={retryFailed}
                   disabled={busy}
-                  className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-destructive hover:text-destructive-foreground disabled:opacity-40"
+                  className="px-4 py-2.5 sm:py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-destructive hover:text-destructive-foreground disabled:opacity-40"
                 >
                   ↻ Retry failed ({stats.failed})
                 </button>
@@ -512,7 +512,7 @@ export function Converter() {
                 <button
                   onClick={downloadZip}
                   title="Download all converted files as a ZIP, preserving original folder structure for files extracted from archives"
-                  className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-[var(--accent-lime)]"
+                  className="col-span-2 px-4 py-2.5 sm:py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-[var(--accent-lime)]"
                 >
                   ↓ Download all ({stats.done}) · keep folders
                 </button>
@@ -520,7 +520,7 @@ export function Converter() {
               <button
                 onClick={convertAll}
                 disabled={busy || items.every((i) => i.status === "done")}
-                className="px-6 py-2 font-display font-bold border-2 border-ink bg-[var(--accent-lime)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--shadow-brutal-sm)] transition-all disabled:opacity-40 disabled:hover:transform-none disabled:hover:shadow-none"
+                className="col-span-2 px-6 py-3 sm:py-2 font-display font-bold border-2 border-ink bg-[var(--accent-lime)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--shadow-brutal-sm)] transition-all disabled:opacity-40 disabled:hover:transform-none disabled:hover:shadow-none"
               >
                 {busy ? "CONVERTING…" : `CONVERT → ${FORMAT_META[format].label}`}
               </button>
@@ -618,10 +618,10 @@ export function Converter() {
       {items.length > 0 && (
         <ul className="mt-6 space-y-2">
           {items.map((item) => (
-            <li key={item.id} className="brutal-card-sm p-4">
-              <div className="flex items-center gap-4">
+            <li key={item.id} className="brutal-card-sm p-3 sm:p-4">
+              <div className="flex items-start sm:items-center gap-3 sm:gap-4">
                 <div
-                  className={`h-10 w-10 shrink-0 flex items-center justify-center font-mono text-xs font-bold border-2 border-ink ${
+                  className={`h-9 w-9 sm:h-10 sm:w-10 shrink-0 flex items-center justify-center font-mono text-xs font-bold border-2 border-ink ${
                     item.status === "done"
                       ? "bg-[var(--accent-lime)]"
                       : item.status === "error"
@@ -640,7 +640,7 @@ export function Converter() {
                         : "·"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-0.5 sm:gap-3">
                     <div className="font-mono text-sm truncate">{item.file.name}</div>
                     <div className="font-mono text-[10px] uppercase tracking-widest shrink-0 text-ink/60">
                       {STATUS_LABEL[item.status]}
@@ -654,30 +654,34 @@ export function Converter() {
                     {item.error ? ` · ${item.error}` : ""}
                   </div>
                 </div>
-                {item.status === "done" && (
+                <div className="flex gap-1.5 shrink-0">
+                  {item.status === "done" && (
+                    <button
+                      onClick={() => downloadOne(item)}
+                      aria-label="Download"
+                      className="h-9 min-w-9 px-2.5 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-[var(--accent-lime)]"
+                    >
+                      ↓
+                    </button>
+                  )}
+                  {item.status === "error" && (
+                    <button
+                      onClick={() => retryItem(item.id)}
+                      disabled={busy}
+                      className="h-9 px-2.5 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-[var(--accent-lime)] disabled:opacity-40"
+                    >
+                      ↻
+                    </button>
+                  )}
                   <button
-                    onClick={() => downloadOne(item)}
-                    className="px-3 py-1 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-[var(--accent-lime)]"
-                  >
-                    ↓
-                  </button>
-                )}
-                {item.status === "error" && (
-                  <button
-                    onClick={() => retryItem(item.id)}
+                    onClick={() => removeItem(item.id)}
                     disabled={busy}
-                    className="px-3 py-1 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-[var(--accent-lime)] disabled:opacity-40"
+                    aria-label="Remove"
+                    className="h-9 min-w-9 px-2.5 font-mono text-xs border-2 border-ink hover:bg-destructive hover:text-destructive-foreground disabled:opacity-40"
                   >
-                    ↻ Retry
+                    ✕
                   </button>
-                )}
-                <button
-                  onClick={() => removeItem(item.id)}
-                  disabled={busy}
-                  className="px-3 py-1 font-mono text-xs border-2 border-ink hover:bg-destructive hover:text-destructive-foreground disabled:opacity-40"
-                >
-                  ✕
-                </button>
+                </div>
               </div>
 
               {/* Per-file progress bar */}
