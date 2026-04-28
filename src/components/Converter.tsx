@@ -428,6 +428,7 @@ export function Converter() {
 
       {/* Dropzone */}
       <div
+        data-reveal
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -800,6 +801,7 @@ export function Converter() {
           JPG/PNG/WEBP freely. For PNG/JPG → HEIC, you'd need a native app.
         </div>
       </footer>
+      </div>
     </div>
   );
 }
