@@ -129,6 +129,7 @@ function Landing() {
           {TOOLS.map((tool) => (
             <article
               key={tool.to}
+              data-reveal-scroll
               className="brutal-card group flex flex-col p-5 transition-transform duration-150 hover:-translate-x-[3px] hover:-translate-y-[3px] sm:p-6"
               style={
                 tool.accent ? { background: "var(--accent-lime)" } : undefined
