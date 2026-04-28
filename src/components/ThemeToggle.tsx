@@ -85,6 +85,7 @@ export function ThemeToggle() {
         duration: 650,
         easing: "cubic-bezier(0.83, 0, 0.17, 1)",
         pseudoElement: pseudo,
+        fill: "both",
       });
 
       await transition.finished;
