@@ -221,12 +221,12 @@ function PasswordsPage() {
 
   return (
     <main ref={setRefs} className="min-h-screen">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-4 sm:py-6">
+      <div className="mx-auto max-w-5xl px-3 sm:px-6 py-3 sm:py-6">
         {/* Above-the-fold viewport: header + basics */}
-        <div className="min-h-[calc(100vh-2rem)] sm:min-h-[calc(100vh-3rem)] flex flex-col gap-4">
+        <div className="min-h-[calc(100dvh-1.5rem)] sm:min-h-[calc(100dvh-3rem)] flex flex-col gap-3 sm:gap-4">
           {/* Header — compact */}
           <header data-reveal>
-            <div className="flex items-center justify-between mb-3 gap-3">
+            <div className="flex items-center justify-between mb-2 sm:mb-3 gap-3">
               <Link
                 to="/"
                 className="font-mono text-[10px] sm:text-xs uppercase tracking-widest border-2 border-ink px-2.5 py-1 hover:bg-ink hover:text-paper"
@@ -235,30 +235,32 @@ function PasswordsPage() {
               </Link>
               <ThemeToggle />
             </div>
-            <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tighter leading-[0.9]">
+            <h1 className="font-display text-2xl sm:text-5xl md:text-6xl font-bold tracking-tighter leading-[0.95]">
               UNCRACKABLE{" "}
-              <span className="bg-[var(--accent-lime)] px-2 inline-block">PASSWORDS</span>{" "}
+              <span className="bg-[var(--accent-lime)] px-1.5 sm:px-2 inline-block">
+                PASSWORDS
+              </span>{" "}
               ON DEMAND.
             </h1>
           </header>
 
           {/* Output */}
-          <section data-reveal className="brutal-card p-4 sm:p-5">
-            <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
-              <div className="font-mono text-xs uppercase tracking-widest">
+          <section data-reveal className="brutal-card p-3 sm:p-5">
+            <div className="flex items-center justify-between mb-2.5 sm:mb-3 gap-2 flex-wrap">
+              <div className="font-mono text-[10px] sm:text-xs uppercase tracking-widest">
                 Output · {opts.count}
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5 sm:gap-2">
                 <button
                   onClick={copyAll}
                   disabled={passwords.length === 0}
-                  className="font-mono text-[10px] uppercase tracking-widest border-2 border-ink px-3 py-1.5 hover:bg-[var(--accent-lime)] disabled:opacity-30"
+                  className="font-mono text-[10px] uppercase tracking-widest border-2 border-ink px-2.5 sm:px-3 py-1.5 hover:bg-[var(--accent-lime)] disabled:opacity-30"
                 >
-                  {copiedIdx === -1 ? "✓ Copied all" : "Copy all"}
+                  {copiedIdx === -1 ? "✓ All" : "Copy all"}
                 </button>
                 <button
                   onClick={generate}
-                  className="font-display font-bold text-sm uppercase border-2 border-ink px-4 py-1.5 bg-ink text-paper hover:bg-[var(--accent-lime)] hover:text-ink"
+                  className="font-display font-bold text-xs sm:text-sm uppercase border-2 border-ink px-3 sm:px-4 py-1.5 bg-ink text-paper hover:bg-[var(--accent-lime)] hover:text-ink"
                 >
                   ↻ Re-roll
                 </button>
@@ -275,14 +277,14 @@ function PasswordsPage() {
             ) : (
               <ul
                 className="space-y-1.5 overflow-y-auto pr-1"
-                style={{ maxHeight: "min(38vh, 320px)" }}
+                style={{ maxHeight: "min(28dvh, 320px)" }}
               >
                 {passwords.map((pw, i) => (
                   <li
                     key={i}
-                    className="brutal-card-sm p-2.5 flex items-center justify-between gap-3"
+                    className="brutal-card-sm p-2 sm:p-2.5 flex items-center justify-between gap-2"
                   >
-                    <code className="font-mono text-xs sm:text-sm break-all select-all">
+                    <code className="font-mono text-[11px] sm:text-sm break-all select-all">
                       {pw || "—"}
                     </code>
                     <button
@@ -297,14 +299,14 @@ function PasswordsPage() {
             )}
 
             {/* Strength meter */}
-            <div className="mt-3 pt-3 border-t-2 border-ink">
-              <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-2">
-                <span>Strength · {strength.label}</span>
-                <span>
+            <div className="mt-2.5 sm:mt-3 pt-2.5 sm:pt-3 border-t-2 border-ink">
+              <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-1.5 sm:mb-2 gap-2">
+                <span className="truncate">Strength · {strength.label}</span>
+                <span className="shrink-0">
                   {bits} bits · pool {alphabetSize}
                 </span>
               </div>
-              <div className="h-3 border-2 border-ink overflow-hidden bg-paper">
+              <div className="h-2.5 sm:h-3 border-2 border-ink overflow-hidden bg-paper">
                 <div
                   className="h-full transition-all duration-500 ease-out"
                   style={{ width: `${strength.pct}%`, background: strength.color }}
@@ -313,11 +315,11 @@ function PasswordsPage() {
             </div>
           </section>
 
-          {/* Basics: length + charsets side-by-side */}
-          <section data-reveal className="grid lg:grid-cols-2 gap-4 flex-1">
+          {/* Basics: length + charsets */}
+          <section data-reveal className="grid lg:grid-cols-2 gap-3 sm:gap-4 flex-1">
             {/* Length */}
-            <div className="brutal-card-sm p-4 sm:p-5">
-              <div className="font-mono text-xs uppercase tracking-widest mb-3 flex justify-between">
+            <div className="brutal-card-sm p-3 sm:p-5">
+              <div className="font-mono text-[10px] sm:text-xs uppercase tracking-widest mb-2 sm:mb-3 flex justify-between">
                 <span>01 / Length</span>
                 <span>{opts.length}</span>
               </div>
@@ -329,12 +331,12 @@ function PasswordsPage() {
                 onChange={(e) => update("length", parseInt(e.target.value))}
                 className="w-full accent-[var(--accent-lime)]"
               />
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
                 {[8, 12, 16, 20, 32, 64].map((n) => (
                   <button
                     key={n}
                     onClick={() => update("length", n)}
-                    className={`font-mono text-xs border-2 border-ink px-2.5 py-1 ${
+                    className={`font-mono text-[11px] sm:text-xs border-2 border-ink px-2 sm:px-2.5 py-1 ${
                       opts.length === n ? "bg-ink text-paper" : "hover:bg-[var(--accent-lime)]"
                     }`}
                   >
@@ -345,31 +347,15 @@ function PasswordsPage() {
             </div>
 
             {/* Character sets */}
-            <div className="brutal-card-sm p-4 sm:p-5">
-              <div className="font-mono text-xs uppercase tracking-widest mb-3">
+            <div className="brutal-card-sm p-3 sm:p-5">
+              <div className="font-mono text-[10px] sm:text-xs uppercase tracking-widest mb-2 sm:mb-3">
                 02 / Character sets
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <Toggle
-                  label="a-z"
-                  checked={opts.lower}
-                  onChange={(v) => update("lower", v)}
-                />
-                <Toggle
-                  label="A-Z"
-                  checked={opts.upper}
-                  onChange={(v) => update("upper", v)}
-                />
-                <Toggle
-                  label="0-9"
-                  checked={opts.digits}
-                  onChange={(v) => update("digits", v)}
-                />
-                <Toggle
-                  label="!@#$"
-                  checked={opts.symbols}
-                  onChange={(v) => update("symbols", v)}
-                />
+              <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                <Toggle label="a-z" checked={opts.lower} onChange={(v) => update("lower", v)} />
+                <Toggle label="A-Z" checked={opts.upper} onChange={(v) => update("upper", v)} />
+                <Toggle label="0-9" checked={opts.digits} onChange={(v) => update("digits", v)} />
+                <Toggle label="!@#$" checked={opts.symbols} onChange={(v) => update("symbols", v)} />
               </div>
             </div>
           </section>
@@ -377,7 +363,7 @@ function PasswordsPage() {
           {/* Advanced toggle — anchored at bottom of fold */}
           <button
             onClick={() => setShowAdvanced((v) => !v)}
-            className="brutal-card-sm py-3 px-4 font-display font-bold text-sm uppercase tracking-tight flex items-center justify-between hover:bg-[var(--accent-lime)] transition-colors"
+            className="brutal-card-sm py-2.5 sm:py-3 px-3 sm:px-4 font-display font-bold text-xs sm:text-sm uppercase tracking-tight flex items-center justify-between hover:bg-[var(--accent-lime)] transition-colors"
             data-reveal
             aria-expanded={showAdvanced}
           >
@@ -494,19 +480,21 @@ function Toggle({
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`text-left border-2 border-ink p-3 transition-all flex items-start gap-3 ${
+      className={`text-left border-2 border-ink p-2 sm:p-3 transition-all flex items-center gap-2 sm:gap-3 ${
         checked ? "bg-[var(--accent-lime)]" : "bg-paper hover:bg-paper/70"
       }`}
     >
       <span
-        className={`mt-0.5 h-5 w-5 shrink-0 border-2 border-ink flex items-center justify-center font-mono text-xs ${
+        className={`h-4 w-4 sm:h-5 sm:w-5 shrink-0 border-2 border-ink flex items-center justify-center font-mono text-[10px] sm:text-xs ${
           checked ? "bg-ink text-paper" : "bg-paper"
         }`}
       >
         {checked ? "✓" : ""}
       </span>
       <span className="min-w-0">
-        <span className="font-display font-bold text-sm block">{label}</span>
+        <span className="font-display font-bold text-xs sm:text-sm block leading-tight">
+          {label}
+        </span>
         {hint && (
           <span className="font-mono text-[10px] text-ink/60 block truncate">{hint}</span>
         )}
