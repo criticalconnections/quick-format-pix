@@ -4,7 +4,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   bestForeground,
   buildPalettes,
-  contrastRatio,
   extractSwatches,
   type BrandPalette,
   type PaletteScheme,
