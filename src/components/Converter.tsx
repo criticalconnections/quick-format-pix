@@ -430,11 +430,7 @@ export function Converter() {
                 (item.status === "queued" && item.progress > 0)) && (
                 <div className="mt-3 h-1.5 border border-ink bg-paper overflow-hidden">
                   <div
-                    className={`h-full transition-[width] duration-150 ease-out ${
-                      item.status === "error"
-                        ? "bg-destructive"
-                        : "bg-[var(--accent-lime)]"
-                    }`}
+                    className="h-full bg-[var(--accent-lime)] transition-[width] duration-150 ease-out"
                     style={{ width: `${item.progress}%` }}
                   />
                 </div>
