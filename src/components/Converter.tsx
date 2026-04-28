@@ -300,12 +300,28 @@ export function Converter() {
     });
   };
 
+  // Run `processItem` over `ids` with a fixed concurrency. A pool of N workers
+  // each pulls the next id off the queue until empty, so 10 items decode in
+  // parallel without spawning 500 promises at once.
+  const runWithConcurrency = async (ids: string[], concurrency: number) => {
+    const queue = [...ids];
+    const worker = async () => {
+      while (queue.length > 0) {
+        const id = queue.shift();
+        if (id === undefined) return;
+        await processItem(id);
+      }
+    };
+    const workers = Array.from({ length: Math.min(concurrency, ids.length) }, worker);
+    await Promise.all(workers);
+  };
+
+  const CONCURRENCY = 10;
+
   const convertAll = async () => {
     setBusy(true);
     const queue = items.filter((i) => i.status !== "done").map((i) => i.id);
-    for (const id of queue) {
-      await processItem(id);
-    }
+    await runWithConcurrency(queue, CONCURRENCY);
     setBusy(false);
   };
 
@@ -318,9 +334,7 @@ export function Converter() {
   const retryFailed = async () => {
     setBusy(true);
     const failedIds = items.filter((i) => i.status === "error").map((i) => i.id);
-    for (const id of failedIds) {
-      await processItem(id);
-    }
+    await runWithConcurrency(failedIds, CONCURRENCY);
     setBusy(false);
   };
 
