@@ -310,7 +310,7 @@ export function Converter() {
         <div className="font-mono text-xs uppercase tracking-widest mb-1">
           ⚠ Note on HEIC output
         </div>
-        <div className="font-mono text-xs leading-relaxed text-paper/80">
+        <div className="font-mono text-xs leading-relaxed text-paper">
           Browsers can DECODE HEIC but cannot ENCODE it (Apple licensing). Convert HEIC → JPG/PNG/WEBP freely. For PNG/JPG → HEIC, you'd need a native app.
         </div>
       </footer>
