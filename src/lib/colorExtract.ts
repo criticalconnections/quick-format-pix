@@ -181,10 +181,41 @@ function sampleImage(img: HTMLImageElement, maxDim = 160): Pixel[] {
   return pixels;
 }
 
-function kmeans(pixels: Pixel[], k: number, iterations = 12) {
+// Mulberry32: tiny seeded PRNG. Deterministic results for the same seed.
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Hash the pixel buffer so identical images produce identical seeds.
+function hashPixels(pixels: Pixel[]): number {
+  let h = 2166136261 >>> 0;
+  // Sample every Nth pixel for speed; still stable for the same input.
+  const stride = Math.max(1, Math.floor(pixels.length / 2048));
+  for (let i = 0; i < pixels.length; i += stride) {
+    const p = pixels[i];
+    h ^= Math.round(p.L * 1000);
+    h = Math.imul(h, 16777619);
+    h ^= Math.round(p.a * 1000);
+    h = Math.imul(h, 16777619);
+    h ^= Math.round(p.b * 1000);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function kmeans(pixels: Pixel[], k: number, iterations = 25) {
   if (pixels.length === 0) return [];
-  // k-means++ init
-  const centers: Pixel[] = [pixels[Math.floor(Math.random() * pixels.length)]];
+  const rand = mulberry32(hashPixels(pixels) ^ (k * 0x9e3779b1));
+
+  // k-means++ init with seeded PRNG
+  const centers: Pixel[] = [pixels[Math.floor(rand() * pixels.length)]];
   while (centers.length < k) {
     const dists = pixels.map((p) => {
       let min = Infinity;
@@ -195,7 +226,7 @@ function kmeans(pixels: Pixel[], k: number, iterations = 12) {
       return min;
     });
     const total = dists.reduce((a, b) => a + b, 0);
-    let r = Math.random() * total;
+    let r = rand() * total;
     let idx = 0;
     for (let i = 0; i < dists.length; i++) {
       r -= dists[i];
@@ -208,6 +239,7 @@ function kmeans(pixels: Pixel[], k: number, iterations = 12) {
   }
 
   const assign = new Int32Array(pixels.length);
+  let prevShift = Infinity;
   for (let iter = 0; iter < iterations; iter++) {
     // assign
     for (let i = 0; i < pixels.length; i++) {
@@ -224,7 +256,7 @@ function kmeans(pixels: Pixel[], k: number, iterations = 12) {
       }
       assign[i] = best;
     }
-    // update
+    // update + measure shift for early termination
     const sums = centers.map(() => ({ L: 0, a: 0, b: 0, n: 0 }));
     for (let i = 0; i < pixels.length; i++) {
       const s = sums[assign[i]];
@@ -234,12 +266,19 @@ function kmeans(pixels: Pixel[], k: number, iterations = 12) {
       s.b += p.b;
       s.n++;
     }
+    let shift = 0;
     for (let j = 0; j < centers.length; j++) {
       const s = sums[j];
       if (s.n > 0) {
-        centers[j] = { L: s.L / s.n, a: s.a / s.n, b: s.b / s.n };
+        const nL = s.L / s.n;
+        const na = s.a / s.n;
+        const nb = s.b / s.n;
+        shift += (centers[j].L - nL) ** 2 + (centers[j].a - na) ** 2 + (centers[j].b - nb) ** 2;
+        centers[j] = { L: nL, a: na, b: nb };
       }
     }
+    if (shift < 1e-7 || Math.abs(prevShift - shift) < 1e-9) break;
+    prevShift = shift;
   }
 
   // populations
