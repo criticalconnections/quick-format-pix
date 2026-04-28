@@ -83,31 +83,55 @@ export function hexToRgb(hex: string): [number, number, number] {
 
 // ---------- naming (rough perceptual buckets) ----------
 
+// Hue buckets tuned for OKLCH hue angles (perceptually uniform, so ranges
+// differ from HSL). Brown/tan emerges from low-L + low-C orange/red, handled below.
 const HUE_NAMES: { max: number; name: string }[] = [
-  { max: 15, name: "Red" },
-  { max: 40, name: "Orange" },
-  { max: 65, name: "Amber" },
-  { max: 90, name: "Yellow" },
-  { max: 150, name: "Green" },
-  { max: 195, name: "Teal" },
-  { max: 240, name: "Blue" },
-  { max: 280, name: "Indigo" },
-  { max: 320, name: "Magenta" },
-  { max: 345, name: "Pink" },
+  { max: 20, name: "Red" },
+  { max: 50, name: "Orange" },
+  { max: 75, name: "Amber" },
+  { max: 105, name: "Yellow" },
+  { max: 165, name: "Green" },
+  { max: 210, name: "Teal" },
+  { max: 255, name: "Blue" },
+  { max: 295, name: "Indigo" },
+  { max: 330, name: "Magenta" },
+  { max: 355, name: "Pink" },
   { max: 360, name: "Red" },
 ];
 
 export function nameColor(L: number, C: number, h: number): string {
-  if (C < 0.02) {
-    if (L < 0.15) return "Black";
-    if (L < 0.35) return "Charcoal";
-    if (L < 0.6) return "Gray";
-    if (L < 0.85) return "Silver";
+  // Achromatic (true grays)
+  if (C < 0.025) {
+    if (L < 0.18) return "Black";
+    if (L < 0.4) return "Charcoal";
+    if (L < 0.65) return "Gray";
+    if (L < 0.88) return "Silver";
     return "White";
   }
+
   const hue = HUE_NAMES.find((b) => h <= b.max)?.name ?? "Color";
-  const tone = L < 0.35 ? "Deep " : L < 0.55 ? "" : L < 0.75 ? "Light " : "Pale ";
-  return `${tone}${hue}`.trim();
+
+  // Earth tones: low-chroma warm hues at mid lightness are "tan/beige/brown",
+  // not "light orange". Catches things like #A67467 (dusty pink) and #D0B5A6 (beige).
+  const isWarm = hue === "Red" || hue === "Orange" || hue === "Amber" || hue === "Yellow";
+  if (C < 0.06 && isWarm) {
+    if (L < 0.35) return "Brown";
+    if (L < 0.55) return "Taupe";
+    if (L < 0.75) return "Tan";
+    return "Beige";
+  }
+  // Cool low-chroma → slate family
+  if (C < 0.05 && !isWarm) {
+    if (L < 0.4) return "Slate";
+    if (L < 0.7) return "Stone";
+    return "Mist";
+  }
+
+  // Saturation qualifier for muted-but-not-gray colors
+  const muted = C < 0.1 ? "Muted " : C < 0.16 ? "Dusty " : "";
+  // Lightness qualifier
+  const tone = L < 0.3 ? "Deep " : L < 0.5 ? "Dark " : L < 0.7 ? "" : L < 0.85 ? "Light " : "Pale ";
+  return `${tone}${muted}${hue}`.trim().replace(/\s+/g, " ");
 }
 
 // ---------- contrast ----------
