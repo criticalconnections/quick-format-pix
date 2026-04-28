@@ -618,10 +618,10 @@ export function Converter() {
       {items.length > 0 && (
         <ul className="mt-6 space-y-2">
           {items.map((item) => (
-            <li key={item.id} className="brutal-card-sm p-4">
-              <div className="flex items-center gap-4">
+            <li key={item.id} className="brutal-card-sm p-3 sm:p-4">
+              <div className="flex items-start sm:items-center gap-3 sm:gap-4">
                 <div
-                  className={`h-10 w-10 shrink-0 flex items-center justify-center font-mono text-xs font-bold border-2 border-ink ${
+                  className={`h-9 w-9 sm:h-10 sm:w-10 shrink-0 flex items-center justify-center font-mono text-xs font-bold border-2 border-ink ${
                     item.status === "done"
                       ? "bg-[var(--accent-lime)]"
                       : item.status === "error"
@@ -640,7 +640,7 @@ export function Converter() {
                         : "·"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-0.5 sm:gap-3">
                     <div className="font-mono text-sm truncate">{item.file.name}</div>
                     <div className="font-mono text-[10px] uppercase tracking-widest shrink-0 text-ink/60">
                       {STATUS_LABEL[item.status]}
@@ -654,30 +654,34 @@ export function Converter() {
                     {item.error ? ` · ${item.error}` : ""}
                   </div>
                 </div>
-                {item.status === "done" && (
+                <div className="flex gap-1.5 shrink-0">
+                  {item.status === "done" && (
+                    <button
+                      onClick={() => downloadOne(item)}
+                      aria-label="Download"
+                      className="h-9 min-w-9 px-2.5 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-[var(--accent-lime)]"
+                    >
+                      ↓
+                    </button>
+                  )}
+                  {item.status === "error" && (
+                    <button
+                      onClick={() => retryItem(item.id)}
+                      disabled={busy}
+                      className="h-9 px-2.5 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-[var(--accent-lime)] disabled:opacity-40"
+                    >
+                      ↻
+                    </button>
+                  )}
                   <button
-                    onClick={() => downloadOne(item)}
-                    className="px-3 py-1 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-[var(--accent-lime)]"
-                  >
-                    ↓
-                  </button>
-                )}
-                {item.status === "error" && (
-                  <button
-                    onClick={() => retryItem(item.id)}
+                    onClick={() => removeItem(item.id)}
                     disabled={busy}
-                    className="px-3 py-1 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-[var(--accent-lime)] disabled:opacity-40"
+                    aria-label="Remove"
+                    className="h-9 min-w-9 px-2.5 font-mono text-xs border-2 border-ink hover:bg-destructive hover:text-destructive-foreground disabled:opacity-40"
                   >
-                    ↻ Retry
+                    ✕
                   </button>
-                )}
-                <button
-                  onClick={() => removeItem(item.id)}
-                  disabled={busy}
-                  className="px-3 py-1 font-mono text-xs border-2 border-ink hover:bg-destructive hover:text-destructive-foreground disabled:opacity-40"
-                >
-                  ✕
-                </button>
+                </div>
               </div>
 
               {/* Per-file progress bar */}
