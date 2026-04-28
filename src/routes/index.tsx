@@ -4,11 +4,11 @@ import { Converter } from "@/components/Converter";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Bulk Image Converter — HEIC, JPG, PNG, WEBP" },
+      { title: "Witness Protection for HEICs — Bulk Image Converter" },
       {
         name: "description",
         content:
-          "Convert images in bulk between HEIC, JPG, PNG and WEBP. Fast, private, runs entirely in your browser.",
+          "Give your HEICs a new identity. Bulk-convert HEIC, JPG, PNG, WEBP in your browser — no upload, no signup.",
       },
     ],
   }),
