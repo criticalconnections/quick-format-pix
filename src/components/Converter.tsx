@@ -441,11 +441,14 @@ export function Converter() {
       )}
 
       {/* Footer note */}
-      <footer className="mt-16 brutal-card-sm p-5 bg-ink text-paper">
+      <footer
+        className="mt-16 brutal-card-sm p-5"
+        style={{ background: "var(--ink)", color: "var(--paper)" }}
+      >
         <div className="font-mono text-xs uppercase tracking-widest mb-1">
           ⚠ Note on HEIC output
         </div>
-        <div className="font-mono text-xs leading-relaxed text-paper">
+        <div className="font-mono text-xs leading-relaxed">
           Browsers can DECODE HEIC but cannot ENCODE it (Apple licensing). Convert HEIC → JPG/PNG/WEBP freely. For PNG/JPG → HEIC, you'd need a native app.
         </div>
       </footer>

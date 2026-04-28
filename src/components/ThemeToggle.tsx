@@ -19,10 +19,15 @@ export function ThemeToggle() {
   const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const t = getInitialTheme();
-    setTheme(t);
-    applyTheme(t);
-    setMounted(true);
+    // Defer to after hydration completes to avoid mismatching <html>
+    // className between SSR markup and client render.
+    const id = window.requestAnimationFrame(() => {
+      const t = getInitialTheme();
+      setTheme(t);
+      applyTheme(t);
+      setMounted(true);
+    });
+    return () => window.cancelAnimationFrame(id);
   }, []);
 
   const toggle = async () => {
