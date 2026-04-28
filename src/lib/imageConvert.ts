@@ -62,31 +62,103 @@ async function isReallyHeic(file: File): Promise<boolean> {
   }
 }
 
+// Sniff bytes → canonical MIME. Returns null if we don't recognize it.
+function sniffMime(head: Uint8Array): string | null {
+  if (head.length < 12) return null;
+  const ascii = String.fromCharCode(...head);
+  // ISO-BMFF: bytes 4..8 == "ftyp", brand at 8..12
+  if (ascii.slice(4, 8) === "ftyp") {
+    const brand = ascii.slice(8, 12).toLowerCase();
+    if (["heic", "heix", "heim", "heis"].includes(brand)) return "image/heic";
+    if (["hevc", "hevx", "hevm", "hevs"].includes(brand)) return "image/heic-sequence";
+    if (["mif1", "msf1"].includes(brand)) return "image/heif";
+    if (brand.startsWith("avif") || brand === "avis") return "image/avif";
+    if (["mp41", "mp42", "isom", "iso2"].includes(brand)) return "video/mp4";
+  }
+  // PNG: 89 50 4E 47
+  if (head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e && head[3] === 0x47)
+    return "image/png";
+  // JPEG: FF D8 FF
+  if (head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff) return "image/jpeg";
+  // GIF
+  if (ascii.slice(0, 4) === "GIF8") return "image/gif";
+  // WEBP
+  if (ascii.slice(0, 4) === "RIFF" && ascii.slice(8, 12) === "WEBP") return "image/webp";
+  // BMP
+  if (ascii.slice(0, 2) === "BM") return "image/bmp";
+  // TIFF
+  if (ascii.slice(0, 4) === "II\x2a\x00" || ascii.slice(0, 4) === "MM\x00\x2a")
+    return "image/tiff";
+  return null;
+}
+
+export interface ValidationResult {
+  blob: Blob;
+  detectedMime: string | null;
+  originalMime: string;
+  corrected: boolean;
+  bytes: ArrayBuffer;
+}
+
+// Read the file once, sniff magic bytes, log + correct the MIME, and return
+// a freshly-wrapped Blob with a consistent type. Use this for every file
+// before handing it to a decoder — especially zip-extracted files which
+// arrive with type "" or "application/octet-stream".
+export async function validateAndNormalize(file: File): Promise<ValidationResult> {
+  const bytes = await file.arrayBuffer();
+  const head = new Uint8Array(bytes.slice(0, 32));
+  const detected = sniffMime(head);
+  const original = file.type || "(empty)";
+  const target = detected ?? (file.type || "application/octet-stream");
+  const corrected = detected !== null && detected !== file.type;
+
+  if (corrected) {
+    console.info(
+      `[validate] ${file.name}: MIME corrected ${original} → ${detected} (sniffed from magic bytes)`,
+    );
+  } else if (!detected) {
+    console.warn(
+      `[validate] ${file.name}: could not sniff MIME from magic bytes; keeping ${original}`,
+    );
+  } else {
+    console.debug(`[validate] ${file.name}: MIME confirmed ${detected}`);
+  }
+
+  return {
+    blob: new Blob([bytes], { type: target }),
+    detectedMime: detected,
+    originalMime: original,
+    corrected,
+    bytes,
+  };
+}
+
 async function fileToBitmap(
   file: File,
 ): Promise<{ bitmap: ImageBitmap; width: number; height: number }> {
-  let blob: Blob = file;
+  // Step 1: validate + normalize. Single source of truth for MIME and bytes.
+  const v = await validateAndNormalize(file);
+  const isHeicMime =
+    v.detectedMime === "image/heic" ||
+    v.detectedMime === "image/heif" ||
+    v.detectedMime === "image/heic-sequence";
   const looksHeic = extLooksHeic(file);
-  const reallyHeic = looksHeic ? await isReallyHeic(file) : false;
 
-  if (reallyHeic) {
+  if (isHeicMime) {
     try {
       const { default: heic2any } = await import("heic2any");
-      // Re-wrap as a plain Blob with the correct MIME. Files extracted from
-      // a .zip arrive with type "" or "application/octet-stream", which some
-      // heic2any builds reject before they ever read the bytes.
-      const buf = await file.arrayBuffer();
-      const heicBlob = new Blob([buf], { type: "image/heic" });
-      const out = await heic2any({ blob: heicBlob, toType: "image/png" });
-      blob = Array.isArray(out) ? out[0] : out;
+      const out = await heic2any({ blob: v.blob, toType: "image/png" });
+      const png = Array.isArray(out) ? out[0] : out;
+      const bitmap = await createImageBitmap(png);
+      return { bitmap, width: bitmap.width, height: bitmap.height };
     } catch (err) {
-      // heic2any rejects with a plain object { code, subcode } — not an Error.
       const e = err as { message?: string; code?: unknown; subcode?: unknown };
       const msg =
         e?.message ||
         (e?.code !== undefined
           ? `libheif code ${String(e.code)}/${String(e.subcode)}`
           : String(err));
+      console.error(`[heic2any] ${file.name}: ${msg}`, err);
       if (/libheif|format not supported|ERR_LIBHEIF|parse HEIF|code/i.test(msg)) {
         throw new ConversionError(
           "HEIC decoder couldn't parse this file. It is likely an unsupported HEIC variant such as HEVC 10-bit, HDR, ProRAW, or a Live Photo still. Export it from Photos as Most Compatible/JPEG, then convert again.",
@@ -95,10 +167,14 @@ async function fileToBitmap(
       }
       throw new ConversionError(msg);
     }
-  } else if (looksHeic) {
-    // Misnamed file — try the browser's native decoder directly.
+  }
+
+  if (looksHeic && !isHeicMime) {
+    console.warn(
+      `[validate] ${file.name}: .heic extension but bytes look like ${v.detectedMime ?? "unknown"}; trying native decoder`,
+    );
     try {
-      const bitmap = await createImageBitmap(file);
+      const bitmap = await createImageBitmap(v.blob);
       return { bitmap, width: bitmap.width, height: bitmap.height };
     } catch {
       throw new ConversionError("File has a .heic extension but isn't valid HEIC data.", false);
@@ -106,12 +182,13 @@ async function fileToBitmap(
   }
 
   try {
-    const bitmap = await createImageBitmap(blob);
+    const bitmap = await createImageBitmap(v.blob);
     return { bitmap, width: bitmap.width, height: bitmap.height };
   } catch {
     throw new ConversionError("Browser couldn't decode this image.", false);
   }
 }
+
 
 export async function convertImage(
   file: File,
