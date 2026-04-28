@@ -19,7 +19,7 @@ interface Item {
   progress: number; // 0-100
   attempts: number;
   source?: string; // origin zip name
-  path?: string;   // original path inside source zip (e.g. "photos/2024/img.heic")
+  path?: string; // original path inside source zip (e.g. "photos/2024/img.heic")
   outBlob?: Blob;
   outName?: string; // basename only (e.g. "img.jpg")
   outPath?: string; // full path for zip output (e.g. "photos/2024/img.jpg")
@@ -34,7 +34,7 @@ interface ZipJob {
   size: number;
   stage: ZipStage;
   progress: number; // 0-100
-  total: number;   // image entries found
+  total: number; // image entries found
   extracted: number;
   skipped: number;
   currentEntry?: string;
@@ -60,8 +60,7 @@ const FORMATS: OutputFormat[] = ["jpeg", "png", "webp"];
 const IMAGE_RE = /\.(heic|heif|jpe?g|png|webp|gif|bmp|tiff?|avif)$/i;
 const isImageFile = (f: { name: string; type?: string }) =>
   /image|heic|heif/i.test(f.type || "") || IMAGE_RE.test(f.name);
-const isZipFile = (f: File) =>
-  /zip/i.test(f.type) || /\.zip$/i.test(f.name);
+const isZipFile = (f: File) => /zip/i.test(f.type) || /\.zip$/i.test(f.name);
 
 export function Converter() {
   const [items, setItems] = useState<Item[]>([]);
@@ -78,16 +77,11 @@ export function Converter() {
     const totalIn = items.reduce((a, b) => a + b.file.size, 0);
     const totalOut = items.reduce((a, b) => a + (b.outSize || 0), 0);
     const overall =
-      items.length === 0
-        ? 0
-        : Math.round(items.reduce((a, b) => a + b.progress, 0) / items.length);
+      items.length === 0 ? 0 : Math.round(items.reduce((a, b) => a + b.progress, 0) / items.length);
     return { done, failed, total: items.length, totalIn, totalOut, overall };
   }, [items]);
 
-  const pushItems = (
-    entries: { file: File; path?: string }[],
-    source?: string,
-  ) => {
+  const pushItems = (entries: { file: File; path?: string }[], source?: string) => {
     setItems((prev) => [
       ...prev,
       ...entries.map(({ file, path }) => ({
@@ -232,9 +226,7 @@ export function Converter() {
       const ticker = window.setInterval(() => {
         pct = Math.min(pct + Math.random() * 12, 90);
         setItems((prev) =>
-          prev.map((p) =>
-            p.id === id && p.status === "converting" ? { ...p, progress: pct } : p
-          )
+          prev.map((p) => (p.id === id && p.status === "converting" ? { ...p, progress: pct } : p)),
         );
       }, 150);
 
@@ -305,7 +297,6 @@ export function Converter() {
     setBusy(false);
   };
 
-
   const downloadOne = (item: Item) => {
     if (!item.outBlob || !item.outName) return;
     const url = URL.createObjectURL(item.outBlob);
@@ -344,14 +335,12 @@ export function Converter() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
-  const removeItem = (id: string) =>
-    setItems((prev) => prev.filter((p) => p.id !== id));
+  const removeItem = (id: string) => setItems((prev) => prev.filter((p) => p.id !== id));
   const clearAll = () => {
     setItems([]);
     setZipJobs([]);
   };
-  const dismissZip = (id: string) =>
-    setZipJobs((prev) => prev.filter((z) => z.id !== id));
+  const dismissZip = (id: string) => setZipJobs((prev) => prev.filter((z) => z.id !== id));
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-12">
@@ -374,7 +363,8 @@ export function Converter() {
           IMAGES.
         </h1>
         <p className="mt-6 font-mono text-sm max-w-md text-ink/70">
-          Drop HEIC, JPG, PNG, WEBP, GIF, BMP. Pick a target format. Done — everything stays in your browser.
+          Drop HEIC, JPG, PNG, WEBP, GIF, BMP. Pick a target format. Done — everything stays in your
+          browser.
         </p>
       </header>
 
@@ -413,18 +403,14 @@ export function Converter() {
       {/* Controls */}
       <div className="grid md:grid-cols-2 gap-6 mt-8">
         <div className="brutal-card-sm p-6">
-          <div className="font-mono text-xs uppercase tracking-widest mb-3">
-            01 / Output format
-          </div>
+          <div className="font-mono text-xs uppercase tracking-widest mb-3">01 / Output format</div>
           <div className="flex gap-2">
             {FORMATS.map((f) => (
               <button
                 key={f}
                 onClick={() => setFormat(f)}
                 className={`flex-1 py-3 font-display font-bold border-2 border-ink transition-all ${
-                  format === f
-                    ? "bg-ink text-paper"
-                    : "bg-paper hover:bg-[var(--accent-lime)]"
+                  format === f ? "bg-ink text-paper" : "bg-paper hover:bg-[var(--accent-lime)]"
                 }`}
               >
                 {FORMAT_META[f].label}
@@ -532,8 +518,8 @@ export function Converter() {
                     z.stage === "done"
                       ? "color-mix(in oklch, var(--accent-lime) 25%, var(--paper))"
                       : z.stage === "error"
-                      ? "color-mix(in oklch, var(--destructive) 18%, var(--paper))"
-                      : "var(--paper)",
+                        ? "color-mix(in oklch, var(--destructive) 18%, var(--paper))"
+                        : "var(--paper)",
                 }}
               >
                 <div className="flex items-center gap-4">
@@ -542,25 +528,22 @@ export function Converter() {
                       z.stage === "done"
                         ? "bg-[var(--accent-lime)]"
                         : z.stage === "error"
-                        ? "bg-destructive text-destructive-foreground"
-                        : "bg-ink text-paper animate-pulse"
+                          ? "bg-destructive text-destructive-foreground"
+                          : "bg-ink text-paper animate-pulse"
                     }`}
                   >
                     {z.stage === "done" ? "✓" : z.stage === "error" ? "!" : "ZIP"}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline justify-between gap-3">
-                      <div className="font-mono text-sm truncate font-bold">
-                        {z.name}
-                      </div>
+                      <div className="font-mono text-sm truncate font-bold">{z.name}</div>
                       <div className="font-mono text-[10px] uppercase tracking-widest shrink-0 text-ink/60">
                         {ZIP_STAGE_LABEL[z.stage]}
                       </div>
                     </div>
                     <div className="font-mono text-xs text-ink/60 mt-0.5 truncate">
                       {formatBytes(z.size)}
-                      {z.total > 0 &&
-                        ` · ${z.extracted}/${z.total} images`}
+                      {z.total > 0 && ` · ${z.extracted}/${z.total} images`}
                       {z.skipped > 0 && ` · ${z.skipped} skipped`}
                       {z.currentEntry && ` · ${z.currentEntry}`}
                       {z.error && ` · ${z.error}`}
@@ -600,19 +583,19 @@ export function Converter() {
                     item.status === "done"
                       ? "bg-[var(--accent-lime)]"
                       : item.status === "error"
-                      ? "bg-destructive text-destructive-foreground"
-                      : item.status === "converting"
-                      ? "bg-ink text-paper animate-pulse"
-                      : "bg-paper"
+                        ? "bg-destructive text-destructive-foreground"
+                        : item.status === "converting"
+                          ? "bg-ink text-paper animate-pulse"
+                          : "bg-paper"
                   }`}
                 >
                   {item.status === "done"
                     ? "✓"
                     : item.status === "error"
-                    ? "!"
-                    : item.status === "converting"
-                    ? "…"
-                    : "·"}
+                      ? "!"
+                      : item.status === "converting"
+                        ? "…"
+                        : "·"}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between gap-3">
@@ -680,7 +663,8 @@ export function Converter() {
           ⚠ Note on HEIC output
         </div>
         <div className="font-mono text-xs leading-relaxed">
-          Browsers can DECODE HEIC but cannot ENCODE it (Apple licensing). Convert HEIC → JPG/PNG/WEBP freely. For PNG/JPG → HEIC, you'd need a native app.
+          Browsers can DECODE HEIC but cannot ENCODE it (Apple licensing). Convert HEIC →
+          JPG/PNG/WEBP freely. For PNG/JPG → HEIC, you'd need a native app.
         </div>
       </footer>
     </div>

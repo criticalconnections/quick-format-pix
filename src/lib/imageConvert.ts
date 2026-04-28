@@ -45,13 +45,26 @@ async function isReallyHeic(file: File): Promise<boolean> {
     const ascii = String.fromCharCode(...head);
     if (ascii.slice(4, 8) !== "ftyp") return false;
     const brand = ascii.slice(8, 12).toLowerCase();
-    return ["heic", "heix", "hevc", "hevx", "mif1", "msf1", "heim", "heis", "hevm", "hevs"].includes(brand);
+    return [
+      "heic",
+      "heix",
+      "hevc",
+      "hevx",
+      "mif1",
+      "msf1",
+      "heim",
+      "heis",
+      "hevm",
+      "hevs",
+    ].includes(brand);
   } catch {
     return false;
   }
 }
 
-async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: number; height: number }> {
+async function fileToBitmap(
+  file: File,
+): Promise<{ bitmap: ImageBitmap; width: number; height: number }> {
   let blob: Blob = file;
   const looksHeic = extLooksHeic(file);
   const reallyHeic = looksHeic ? await isReallyHeic(file) : false;
@@ -69,7 +82,11 @@ async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: n
     } catch (err) {
       // heic2any rejects with a plain object { code, subcode } — not an Error.
       const e = err as { message?: string; code?: unknown; subcode?: unknown };
-      const msg = e?.message || (e?.code !== undefined ? `libheif code ${String(e.code)}/${String(e.subcode)}` : String(err));
+      const msg =
+        e?.message ||
+        (e?.code !== undefined
+          ? `libheif code ${String(e.code)}/${String(e.subcode)}`
+          : String(err));
       if (/libheif|format not supported|ERR_LIBHEIF|parse HEIF|code/i.test(msg)) {
         throw new ConversionError(
           "HEIC decoder couldn't parse this file. It is likely an unsupported HEIC variant such as HEVC 10-bit, HDR, ProRAW, or a Live Photo still. Export it from Photos as Most Compatible/JPEG, then convert again.",
@@ -99,7 +116,7 @@ async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: n
 export async function convertImage(
   file: File,
   format: OutputFormat,
-  quality = 0.92
+  quality = 0.92,
 ): Promise<{ blob: Blob; name: string }> {
   const { bitmap, width, height } = await fileToBitmap(file);
   const canvas = document.createElement("canvas");
@@ -120,7 +137,7 @@ export async function convertImage(
     canvas.toBlob(
       (b) => (b ? resolve(b) : reject(new Error("Conversion failed"))),
       meta.mime,
-      quality
+      quality,
     );
   });
   const baseName = file.name.replace(/\.[^.]+$/, "");
