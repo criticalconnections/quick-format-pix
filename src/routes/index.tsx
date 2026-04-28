@@ -274,7 +274,7 @@ function Landing() {
           </span>
         </footer>
       </div>
-      {broken && <BrokenScreen onReset={reset} />}
+      {isBroken && <BrokenScreen key={mobileBreak} onReset={handleReset} intensity={intensity} />}
     </main>
   );
 }
