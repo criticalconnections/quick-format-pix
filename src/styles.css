@@ -203,21 +203,23 @@ body {
   --shadow-brutal-sm: 3px 3px 0 0 var(--ink);
 }
 
-/* Theme sweep transition */
+/* Theme sweep transition - circular reveal from toggle button */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
 }
+/* Going to dark: new (dark) sweeps in on top of old (light) */
 ::view-transition-old(root) {
   z-index: 1;
 }
 ::view-transition-new(root) {
   z-index: 9999;
 }
-.dark::view-transition-old(root) {
+/* Going to light: old (dark) sweeps out, revealing new (light) underneath */
+.theme-sweep-out::view-transition-old(root) {
   z-index: 9999;
 }
-.dark::view-transition-new(root) {
+.theme-sweep-out::view-transition-new(root) {
   z-index: 1;
 }
