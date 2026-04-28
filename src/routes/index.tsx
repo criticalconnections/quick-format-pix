@@ -169,10 +169,6 @@ function Landing() {
             <span className="truncate font-mono text-[10px] uppercase tracking-widest sm:text-sm">
               toolshed.local
             </span>
-            <span className="hidden items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-[var(--ink)]/60 sm:flex sm:text-xs">
-              <span className="h-3 w-3 border-2 border-[var(--ink)] bg-[var(--accent-lime)]" />
-              v1.0 / Browser-native / No upload
-            </span>
           </div>
           <ThemeToggle />
         </header>
