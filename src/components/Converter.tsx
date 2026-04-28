@@ -596,6 +596,7 @@ export function Converter() {
                   <div className="font-mono text-xs text-ink/50 mt-0.5 truncate">
                     {formatBytes(item.file.size)}
                     {item.outSize ? ` → ${formatBytes(item.outSize)}` : ""}
+                    {item.source ? ` · from ${item.source}` : ""}
                     {item.error ? ` · ${item.error}` : ""}
                   </div>
                 </div>
