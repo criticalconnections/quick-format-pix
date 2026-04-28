@@ -187,16 +187,21 @@ function Landing() {
               key={tool.to}
               to={tool.to}
               data-reveal-scroll
-              className="brutal-card group flex flex-col justify-between p-3 transition-transform duration-150 hover:-translate-x-[3px] hover:-translate-y-[3px] sm:p-4"
+              className="brutal-card group flex flex-col p-3 transition-transform duration-150 hover:-translate-x-[3px] hover:-translate-y-[3px] sm:p-4"
               style={
-                tool.accent ? { background: "var(--accent-lime)" } : undefined
+                tool.accent
+                  ? {
+                      background: "var(--accent-lime)",
+                      color: "var(--accent-lime-foreground)",
+                    }
+                  : undefined
               }
             >
               <div className="flex items-start justify-between">
                 <span className="font-mono text-[10px] font-bold tracking-widest opacity-70">
                   №{tool.number}
                 </span>
-                <span className="font-mono text-[9px] uppercase tracking-widest opacity-50">
+                <span className="font-mono text-[9px] uppercase tracking-widest opacity-60">
                   {tool.to}
                 </span>
               </div>
@@ -210,8 +215,19 @@ function Landing() {
                 </div>
               </div>
 
-              <div className="mt-3 flex items-center justify-end border-t-2 border-[var(--ink)] pt-1.5 font-mono text-[10px] font-bold uppercase tracking-widest opacity-80 transition-opacity group-hover:opacity-100">
-                Open →
+              <p className="mt-2 hidden flex-1 font-display text-[11px] leading-snug opacity-90 sm:mt-3 sm:block sm:text-xs">
+                {tool.description}
+              </p>
+
+              <div
+                className="mt-3 inline-flex items-center justify-between border-t-2 pt-1.5 font-mono text-[10px] font-bold uppercase tracking-widest"
+                style={{
+                  borderColor: tool.accent
+                    ? "var(--accent-lime-foreground)"
+                    : "var(--ink)",
+                }}
+              >
+                <span className="truncate">{tool.cta}</span>
               </div>
             </Link>
           ))}
