@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import JSZip from "jszip";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   ACCEPTED_INPUT,
   convertImage,
@@ -119,11 +120,14 @@ export function Converter() {
     <div className="mx-auto max-w-5xl px-6 py-12">
       {/* Header */}
       <header className="mb-10">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="h-3 w-3 bg-[var(--accent-lime)] border-2 border-ink" />
-          <span className="font-mono text-xs tracking-widest uppercase">
-            v1.0 / Browser-native / No upload
-          </span>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="h-3 w-3 bg-[var(--accent-lime)] border-2 border-ink" />
+            <span className="font-mono text-xs tracking-widest uppercase">
+              v1.0 / Browser-native / No upload
+            </span>
+          </div>
+          <ThemeToggle />
         </div>
         <h1 className="font-display text-6xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
           BULK
