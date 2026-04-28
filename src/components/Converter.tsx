@@ -6,6 +6,7 @@ import {
   convertImage,
   FORMAT_META,
   formatBytes,
+  isNonRetryableConversionError,
   type OutputFormat,
 } from "@/lib/imageConvert";
 
@@ -258,6 +259,9 @@ export function Converter() {
       } catch (err) {
         clearInterval(ticker);
         lastError = err as Error;
+        if (isNonRetryableConversionError(err)) {
+          break;
+        }
         if (attempt <= MAX_AUTO_RETRIES) {
           updateItem(id, {
             status: "queued",
@@ -618,7 +622,7 @@ export function Converter() {
                       {item.attempts > 1 && ` · try ${item.attempts}`}
                     </div>
                   </div>
-                  <div className="font-mono text-xs text-ink/50 mt-0.5 truncate">
+                  <div className="font-mono text-xs text-ink/50 mt-0.5 break-words">
                     {formatBytes(item.file.size)}
                     {item.outSize ? ` → ${formatBytes(item.outSize)}` : ""}
                     {item.source ? ` · from ${item.source}` : ""}
