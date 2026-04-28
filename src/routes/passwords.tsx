@@ -480,19 +480,21 @@ function Toggle({
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`text-left border-2 border-ink p-3 transition-all flex items-start gap-3 ${
+      className={`text-left border-2 border-ink p-2 sm:p-3 transition-all flex items-center gap-2 sm:gap-3 ${
         checked ? "bg-[var(--accent-lime)]" : "bg-paper hover:bg-paper/70"
       }`}
     >
       <span
-        className={`mt-0.5 h-5 w-5 shrink-0 border-2 border-ink flex items-center justify-center font-mono text-xs ${
+        className={`h-4 w-4 sm:h-5 sm:w-5 shrink-0 border-2 border-ink flex items-center justify-center font-mono text-[10px] sm:text-xs ${
           checked ? "bg-ink text-paper" : "bg-paper"
         }`}
       >
         {checked ? "✓" : ""}
       </span>
       <span className="min-w-0">
-        <span className="font-display font-bold text-sm block">{label}</span>
+        <span className="font-display font-bold text-xs sm:text-sm block leading-tight">
+          {label}
+        </span>
         {hint && (
           <span className="font-mono text-[10px] text-ink/60 block truncate">{hint}</span>
         )}
