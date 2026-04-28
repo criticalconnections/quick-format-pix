@@ -98,15 +98,19 @@ function ColorsPage() {
   };
 
   const pageRef = usePageEnter<HTMLElement>();
-  const revealRoot = useScrollReveal<HTMLDivElement>("[data-reveal-scroll]", [
+  const revealRoot = useScrollReveal<HTMLElement>("[data-reveal-scroll]", [
     swatches.length,
     palettes.length,
     activeSeedHex,
   ]);
+  const setRefs = (node: HTMLElement | null) => {
+    pageRef.current = node;
+    revealRoot.current = node;
+  };
 
   return (
-    <main ref={pageRef} className="min-h-screen">
-      <div ref={revealRoot} className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-12">
+    <main ref={setRefs} className="min-h-screen">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-12">
         {/* Header */}
         <header className="mb-8 sm:mb-10" data-reveal>
           <div className="flex items-center justify-between mb-4 gap-3">

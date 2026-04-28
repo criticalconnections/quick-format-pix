@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PasswordsRouteImport } from './routes/passwords'
 import { Route as ColorsRouteImport } from './routes/colors'
 import { Route as IndexRouteImport } from './routes/index'
 
+const PasswordsRoute = PasswordsRouteImport.update({
+  id: '/passwords',
+  path: '/passwords',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ColorsRoute = ColorsRouteImport.update({
   id: '/colors',
   path: '/colors',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/colors': typeof ColorsRoute
+  '/passwords': typeof PasswordsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/colors': typeof ColorsRoute
+  '/passwords': typeof PasswordsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/colors': typeof ColorsRoute
+  '/passwords': typeof PasswordsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/colors'
+  fullPaths: '/' | '/colors' | '/passwords'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/colors'
-  id: '__root__' | '/' | '/colors'
+  to: '/' | '/colors' | '/passwords'
+  id: '__root__' | '/' | '/colors' | '/passwords'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ColorsRoute: typeof ColorsRoute
+  PasswordsRoute: typeof PasswordsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/passwords': {
+      id: '/passwords'
+      path: '/passwords'
+      fullPath: '/passwords'
+      preLoaderRoute: typeof PasswordsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/colors': {
       id: '/colors'
       path: '/colors'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ColorsRoute: ColorsRoute,
+  PasswordsRoute: PasswordsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
