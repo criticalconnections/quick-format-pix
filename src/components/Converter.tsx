@@ -400,27 +400,13 @@ export function Converter() {
       {/* Header */}
       <header className="mb-8 sm:mb-10" data-reveal>
         <div className="flex items-center justify-between mb-4 gap-3">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="h-3 w-3 shrink-0 bg-[var(--accent-lime)] border-2 border-ink" />
-            <span className="font-mono text-[10px] sm:text-xs tracking-widest uppercase truncate">
-              v1.0 / Browser-native / No upload
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              to="/colors"
-              className="font-mono text-[10px] sm:text-xs uppercase tracking-widest border-2 border-ink px-2.5 py-1 hover:bg-[var(--accent-lime)]"
-            >
-              /colors
-            </Link>
-            <Link
-              to="/passwords"
-              className="font-mono text-[10px] sm:text-xs uppercase tracking-widest border-2 border-ink px-2.5 py-1 hover:bg-[var(--accent-lime)]"
-            >
-              /passwords
-            </Link>
-            <ThemeToggle />
-          </div>
+          <Link
+            to="/"
+            className="brutal-card-sm bg-paper px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest hover:bg-[var(--accent-lime)] sm:text-xs"
+          >
+            ← Toolshed
+          </Link>
+          <ThemeToggle />
         </div>
         <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
           WITNESS
