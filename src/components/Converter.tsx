@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import JSZip from "jszip";
+import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   ACCEPTED_INPUT,
