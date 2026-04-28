@@ -406,11 +406,11 @@ export function Converter() {
           </div>
         </div>
         <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
-          BULK
+          WITNESS
           <br />
-          <span className="bg-[var(--accent-lime)] px-3 -ml-1 inline-block">CONVERT</span>
+          <span className="bg-[var(--accent-lime)] px-3 -ml-1 inline-block">PROTECTION</span>
           <br />
-          IMAGES.
+          FOR HEICs.
         </h1>
         <p className="mt-5 sm:mt-6 font-mono text-sm max-w-md text-ink/70">
           Drop HEIC, JPG, PNG, WEBP, GIF, BMP. Pick a target format. Done — everything stays in your
