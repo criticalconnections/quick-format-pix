@@ -297,36 +297,64 @@ export function Converter() {
         </div>
       </div>
 
-      {/* Action bar */}
+      {/* Action bar + overall progress */}
       {items.length > 0 && (
-        <div className="mt-8 flex flex-wrap gap-3 items-center justify-between">
-          <div className="font-mono text-xs uppercase tracking-widest">
-            {stats.total} file{stats.total !== 1 ? "s" : ""} · {formatBytes(stats.totalIn)}
-            {stats.done > 0 && ` → ${formatBytes(stats.totalOut)}`}
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={clearAll}
-              disabled={busy}
-              className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-ink hover:text-paper disabled:opacity-40"
-            >
-              Clear
-            </button>
-            {stats.done > 1 && (
+        <div className="mt-8 space-y-4">
+          <div className="flex flex-wrap gap-3 items-center justify-between">
+            <div className="font-mono text-xs uppercase tracking-widest">
+              {stats.done}/{stats.total} done
+              {stats.failed > 0 && ` · ${stats.failed} failed`}
+              {" · "}
+              {formatBytes(stats.totalIn)}
+              {stats.totalOut > 0 && ` → ${formatBytes(stats.totalOut)}`}
+            </div>
+            <div className="flex gap-2 flex-wrap">
               <button
-                onClick={downloadZip}
-                className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-[var(--accent-lime)]"
+                onClick={clearAll}
+                disabled={busy}
+                className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-ink hover:text-paper disabled:opacity-40"
               >
-                ↓ ZIP all
+                Clear
               </button>
-            )}
-            <button
-              onClick={convertAll}
-              disabled={busy || items.every((i) => i.status === "done")}
-              className="px-6 py-2 font-display font-bold border-2 border-ink bg-[var(--accent-lime)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--shadow-brutal-sm)] transition-all disabled:opacity-40 disabled:hover:transform-none disabled:hover:shadow-none"
-            >
-              {busy ? "CONVERTING…" : `CONVERT → ${FORMAT_META[format].label}`}
-            </button>
+              {stats.failed > 0 && (
+                <button
+                  onClick={retryFailed}
+                  disabled={busy}
+                  className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-destructive hover:text-destructive-foreground disabled:opacity-40"
+                >
+                  ↻ Retry failed ({stats.failed})
+                </button>
+              )}
+              {stats.done > 1 && (
+                <button
+                  onClick={downloadZip}
+                  className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-[var(--accent-lime)]"
+                >
+                  ↓ ZIP all
+                </button>
+              )}
+              <button
+                onClick={convertAll}
+                disabled={busy || items.every((i) => i.status === "done")}
+                className="px-6 py-2 font-display font-bold border-2 border-ink bg-[var(--accent-lime)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--shadow-brutal-sm)] transition-all disabled:opacity-40 disabled:hover:transform-none disabled:hover:shadow-none"
+              >
+                {busy ? "CONVERTING…" : `CONVERT → ${FORMAT_META[format].label}`}
+              </button>
+            </div>
+          </div>
+
+          {/* Overall progress bar */}
+          <div>
+            <div className="flex justify-between font-mono text-xs uppercase tracking-widest mb-1">
+              <span>Overall progress</span>
+              <span>{stats.overall}%</span>
+            </div>
+            <div className="h-3 border-2 border-ink bg-paper overflow-hidden">
+              <div
+                className="h-full bg-[var(--accent-lime)] transition-[width] duration-200 ease-out"
+                style={{ width: `${stats.overall}%` }}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -335,52 +363,82 @@ export function Converter() {
       {items.length > 0 && (
         <ul className="mt-6 space-y-2">
           {items.map((item) => (
-            <li
-              key={item.id}
-              className="brutal-card-sm p-4 flex items-center gap-4"
-            >
-              <div
-                className={`h-10 w-10 flex items-center justify-center font-mono text-xs font-bold border-2 border-ink ${
-                  item.status === "done"
-                    ? "bg-[var(--accent-lime)]"
-                    : item.status === "error"
-                    ? "bg-destructive text-destructive-foreground"
-                    : item.status === "converting"
-                    ? "bg-ink text-paper animate-pulse"
-                    : "bg-paper"
-                }`}
-              >
-                {item.status === "done"
-                  ? "✓"
-                  : item.status === "error"
-                  ? "!"
-                  : item.status === "converting"
-                  ? "…"
-                  : "·"}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-mono text-sm truncate">{item.file.name}</div>
-                <div className="font-mono text-xs text-ink/50">
-                  {formatBytes(item.file.size)}
-                  {item.outSize && ` → ${formatBytes(item.outSize)}`}
-                  {item.error && ` · ${item.error}`}
-                </div>
-              </div>
-              {item.status === "done" && (
-                <button
-                  onClick={() => downloadOne(item)}
-                  className="px-3 py-1 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-[var(--accent-lime)]"
+            <li key={item.id} className="brutal-card-sm p-4">
+              <div className="flex items-center gap-4">
+                <div
+                  className={`h-10 w-10 shrink-0 flex items-center justify-center font-mono text-xs font-bold border-2 border-ink ${
+                    item.status === "done"
+                      ? "bg-[var(--accent-lime)]"
+                      : item.status === "error"
+                      ? "bg-destructive text-destructive-foreground"
+                      : item.status === "converting"
+                      ? "bg-ink text-paper animate-pulse"
+                      : "bg-paper"
+                  }`}
                 >
-                  ↓
+                  {item.status === "done"
+                    ? "✓"
+                    : item.status === "error"
+                    ? "!"
+                    : item.status === "converting"
+                    ? "…"
+                    : "·"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <div className="font-mono text-sm truncate">{item.file.name}</div>
+                    <div className="font-mono text-[10px] uppercase tracking-widest shrink-0 text-ink/60">
+                      {STATUS_LABEL[item.status]}
+                      {item.attempts > 1 && ` · try ${item.attempts}`}
+                    </div>
+                  </div>
+                  <div className="font-mono text-xs text-ink/50 mt-0.5 truncate">
+                    {formatBytes(item.file.size)}
+                    {item.outSize ? ` → ${formatBytes(item.outSize)}` : ""}
+                    {item.error ? ` · ${item.error}` : ""}
+                  </div>
+                </div>
+                {item.status === "done" && (
+                  <button
+                    onClick={() => downloadOne(item)}
+                    className="px-3 py-1 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-[var(--accent-lime)]"
+                  >
+                    ↓
+                  </button>
+                )}
+                {item.status === "error" && (
+                  <button
+                    onClick={() => retryItem(item.id)}
+                    disabled={busy}
+                    className="px-3 py-1 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-[var(--accent-lime)] disabled:opacity-40"
+                  >
+                    ↻ Retry
+                  </button>
+                )}
+                <button
+                  onClick={() => removeItem(item.id)}
+                  disabled={busy}
+                  className="px-3 py-1 font-mono text-xs border-2 border-ink hover:bg-destructive hover:text-destructive-foreground disabled:opacity-40"
+                >
+                  ✕
                 </button>
+              </div>
+
+              {/* Per-file progress bar */}
+              {(item.status === "converting" ||
+                (item.status === "done" && item.progress < 100) ||
+                (item.status === "queued" && item.progress > 0)) && (
+                <div className="mt-3 h-1.5 border border-ink bg-paper overflow-hidden">
+                  <div
+                    className={`h-full transition-[width] duration-150 ease-out ${
+                      item.status === "error"
+                        ? "bg-destructive"
+                        : "bg-[var(--accent-lime)]"
+                    }`}
+                    style={{ width: `${item.progress}%` }}
+                  />
+                </div>
               )}
-              <button
-                onClick={() => removeItem(item.id)}
-                disabled={busy}
-                className="px-3 py-1 font-mono text-xs border-2 border-ink hover:bg-destructive hover:text-destructive-foreground disabled:opacity-40"
-              >
-                ✕
-              </button>
             </li>
           ))}
         </ul>
