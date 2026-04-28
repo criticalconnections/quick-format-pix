@@ -125,42 +125,10 @@ const TOOLS: Tool[] = [
 function Landing() {
   const heroRef = usePageEnter<HTMLDivElement>();
   const gridRef = useScrollReveal<HTMLDivElement>();
-  const [cookieDismissed, setCookieDismissed] = useState(false);
   const { broken, reset } = useKonamiBreak();
 
   return (
     <main className="min-h-[100dvh]">
-      {!cookieDismissed && (
-        <div
-          role="dialog"
-          aria-label="Cookie notice"
-          className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-3xl sm:inset-x-0 sm:bottom-6"
-        >
-          <div
-            className="brutal-card mx-auto flex flex-col items-center gap-4 p-5 text-center sm:gap-5 sm:p-7"
-            style={{ background: "var(--paper)" }}
-          >
-            <div
-              className="brutal-card-sm px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-widest sm:text-sm"
-              style={{ background: "var(--accent-lime)" }}
-            >
-              ⚠ Notice
-            </div>
-            <p className="font-mono text-sm leading-relaxed text-[var(--ink)] sm:text-base md:text-lg">
-              This site uses <strong>0 cookies</strong>, <strong>0 trackers</strong>,
-              and <strong>0 analytics</strong>. There is no "Accept All" button
-              because there is nothing to accept. You may now close this banner
-              and reflect on how strange that feels.
-            </p>
-            <button
-              onClick={() => setCookieDismissed(true)}
-              className="brutal-card-sm bg-[var(--paper)] px-6 py-2.5 font-mono text-xs font-bold uppercase tracking-widest hover:bg-[var(--accent-lime)] sm:text-sm"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
       <div className="mx-auto flex min-h-[100dvh] max-w-6xl flex-col px-4 py-3 sm:px-6 sm:py-5">
         {/* Top bar */}
         <header className="flex shrink-0 items-center justify-between gap-3">
