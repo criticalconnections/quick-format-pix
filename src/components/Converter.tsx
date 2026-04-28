@@ -18,8 +18,10 @@ interface Item {
   progress: number; // 0-100
   attempts: number;
   source?: string; // origin zip name
+  path?: string;   // original path inside source zip (e.g. "photos/2024/img.heic")
   outBlob?: Blob;
-  outName?: string;
+  outName?: string; // basename only (e.g. "img.jpg")
+  outPath?: string; // full path for zip output (e.g. "photos/2024/img.jpg")
   outSize?: number;
   error?: string;
 }
