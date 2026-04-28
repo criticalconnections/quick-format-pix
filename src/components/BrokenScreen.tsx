@@ -130,15 +130,15 @@ export function BrokenScreen({ onReset, intensity = 1 }: BrokenScreenProps) {
       <style>{`
         @keyframes ts-shake {
           0% { transform: translate(0,0); }
-          15% { transform: translate(-8px, 6px) rotate(-0.4deg); }
-          30% { transform: translate(7px, -5px) rotate(0.3deg); }
-          45% { transform: translate(-5px, -7px) rotate(-0.2deg); }
-          60% { transform: translate(6px, 4px) rotate(0.2deg); }
-          75% { transform: translate(-3px, 3px); }
+          15% { transform: translate(${-8 * intensity}px, ${6 * intensity}px) rotate(${-0.4 * intensity}deg); }
+          30% { transform: translate(${7 * intensity}px, ${-5 * intensity}px) rotate(${0.3 * intensity}deg); }
+          45% { transform: translate(${-5 * intensity}px, ${-7 * intensity}px) rotate(${-0.2 * intensity}deg); }
+          60% { transform: translate(${6 * intensity}px, ${4 * intensity}px) rotate(${0.2 * intensity}deg); }
+          75% { transform: translate(${-3 * intensity}px, ${3 * intensity}px); }
           100% { transform: translate(0,0); }
         }
         body > #app, body > div:first-of-type, main {
-          animation: ts-shake 0.55s cubic-bezier(.36,.07,.19,.97) both;
+          animation: ts-shake ${Math.max(0.4, 0.55 + intensity * 0.05)}s cubic-bezier(.36,.07,.19,.97) both;
         }
       `}</style>
 
