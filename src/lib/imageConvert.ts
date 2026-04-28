@@ -2,6 +2,16 @@
 
 export type OutputFormat = "jpeg" | "png" | "webp";
 
+export class ConversionError extends Error {
+  retryable: boolean;
+
+  constructor(message: string, retryable = true) {
+    super(message);
+    this.name = "ConversionError";
+    this.retryable = retryable;
+  }
+}
+
 export const FORMAT_META: Record<OutputFormat, { mime: string; ext: string; label: string }> = {
   jpeg: { mime: "image/jpeg", ext: "jpg", label: "JPG" },
   png: { mime: "image/png", ext: "png", label: "PNG" },
@@ -21,6 +31,10 @@ function extLooksHeic(file: File) {
   );
 }
 
+export function isNonRetryableConversionError(err: unknown) {
+  return err instanceof ConversionError && !err.retryable;
+}
+
 // Sniff the ISO-BMFF "ftyp" box to confirm a file is actually HEIC/HEIF.
 // HEIC files start with: [4 bytes size][ftyp][brand]. Brand is one of
 // heic, heix, hevc, hevx, mif1, msf1, heim, heis, hevm, hevs.
@@ -31,13 +45,26 @@ async function isReallyHeic(file: File): Promise<boolean> {
     const ascii = String.fromCharCode(...head);
     if (ascii.slice(4, 8) !== "ftyp") return false;
     const brand = ascii.slice(8, 12).toLowerCase();
-    return ["heic", "heix", "hevc", "hevx", "mif1", "msf1", "heim", "heis", "hevm", "hevs"].includes(brand);
+    return [
+      "heic",
+      "heix",
+      "hevc",
+      "hevx",
+      "mif1",
+      "msf1",
+      "heim",
+      "heis",
+      "hevm",
+      "hevs",
+    ].includes(brand);
   } catch {
     return false;
   }
 }
 
-async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: number; height: number }> {
+async function fileToBitmap(
+  file: File,
+): Promise<{ bitmap: ImageBitmap; width: number; height: number }> {
   let blob: Blob = file;
   const looksHeic = extLooksHeic(file);
   const reallyHeic = looksHeic ? await isReallyHeic(file) : false;
@@ -55,13 +82,18 @@ async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: n
     } catch (err) {
       // heic2any rejects with a plain object { code, subcode } — not an Error.
       const e = err as { message?: string; code?: unknown; subcode?: unknown };
-      const msg = e?.message || (e?.code !== undefined ? `libheif code ${String(e.code)}/${String(e.subcode)}` : String(err));
+      const msg =
+        e?.message ||
+        (e?.code !== undefined
+          ? `libheif code ${String(e.code)}/${String(e.subcode)}`
+          : String(err));
       if (/libheif|format not supported|ERR_LIBHEIF|parse HEIF|code/i.test(msg)) {
-        throw new Error(
-          "HEIC decoder couldn't parse this file (often HEVC 10-bit, HDR, or a Live Photo). Re-export from Photos as 'Most Compatible' (JPEG) or open on a Mac and export as HEIC 8-bit.",
+        throw new ConversionError(
+          "HEIC decoder couldn't parse this file. It is likely an unsupported HEIC variant such as HEVC 10-bit, HDR, ProRAW, or a Live Photo still. Export it from Photos as Most Compatible/JPEG, then convert again.",
+          false,
         );
       }
-      throw new Error(msg);
+      throw new ConversionError(msg);
     }
   } else if (looksHeic) {
     // Misnamed file — try the browser's native decoder directly.
@@ -69,7 +101,7 @@ async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: n
       const bitmap = await createImageBitmap(file);
       return { bitmap, width: bitmap.width, height: bitmap.height };
     } catch {
-      throw new Error("File has a .heic extension but isn't valid HEIC data.");
+      throw new ConversionError("File has a .heic extension but isn't valid HEIC data.", false);
     }
   }
 
@@ -77,14 +109,14 @@ async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: n
     const bitmap = await createImageBitmap(blob);
     return { bitmap, width: bitmap.width, height: bitmap.height };
   } catch {
-    throw new Error("Browser couldn't decode this image.");
+    throw new ConversionError("Browser couldn't decode this image.", false);
   }
 }
 
 export async function convertImage(
   file: File,
   format: OutputFormat,
-  quality = 0.92
+  quality = 0.92,
 ): Promise<{ blob: Blob; name: string }> {
   const { bitmap, width, height } = await fileToBitmap(file);
   const canvas = document.createElement("canvas");
@@ -105,7 +137,7 @@ export async function convertImage(
     canvas.toBlob(
       (b) => (b ? resolve(b) : reject(new Error("Conversion failed"))),
       meta.mime,
-      quality
+      quality,
     );
   });
   const baseName = file.name.replace(/\.[^.]+$/, "");
