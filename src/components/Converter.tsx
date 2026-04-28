@@ -83,16 +83,20 @@ export function Converter() {
     return { done, failed, total: items.length, totalIn, totalOut, overall };
   }, [items]);
 
-  const pushItems = (files: File[], source?: string) => {
+  const pushItems = (
+    entries: { file: File; path?: string }[],
+    source?: string,
+  ) => {
     setItems((prev) => [
       ...prev,
-      ...files.map((file) => ({
+      ...entries.map(({ file, path }) => ({
         id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 7)}`,
         file,
         status: "queued" as Status,
         progress: 0,
         attempts: 0,
         source,
+        path,
       })),
     ]);
   };
