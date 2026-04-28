@@ -413,6 +413,12 @@ export function Converter() {
             >
               /colors
             </Link>
+            <Link
+              to="/passwords"
+              className="font-mono text-[10px] sm:text-xs uppercase tracking-widest border-2 border-ink px-2.5 py-1 hover:bg-[var(--accent-lime)]"
+            >
+              /passwords
+            </Link>
             <ThemeToggle />
           </div>
         </div>
