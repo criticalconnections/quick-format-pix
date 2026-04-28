@@ -192,3 +192,33 @@ body::before {
   border: 2px solid var(--ink);
   box-shadow: var(--shadow-brutal-sm);
 }
+
+.dark {
+  --paper: oklch(0.16 0.01 100);
+  --ink: oklch(0.96 0.005 100);
+  --background: oklch(0.16 0.01 100);
+  --foreground: oklch(0.96 0.005 100);
+  --accent-lime: oklch(0.85 0.22 125);
+  --accent-lime-foreground: oklch(0.15 0.01 100);
+  --shadow-brutal: 6px 6px 0 0 var(--ink);
+  --shadow-brutal-sm: 3px 3px 0 0 var(--ink);
+}
+
+/* Theme sweep transition */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 9999;
+}
+.dark::view-transition-old(root) {
+  z-index: 9999;
+}
+.dark::view-transition-new(root) {
+  z-index: 1;
+}
