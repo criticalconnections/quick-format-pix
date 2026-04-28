@@ -218,6 +218,18 @@ body {
   color: var(--accent-lime-foreground);
 }
 
+/* Paper-backed surfaces always use ink for text, so light-on-light or
+   dark-on-dark inversions don't swallow the content in either theme. */
+.bg-paper,
+[class*=" bg-paper"],
+[class^="bg-paper"] {
+  color: var(--ink);
+}
+.brutal-card,
+.brutal-card-sm {
+  color: var(--ink);
+}
+
 /* Theme sweep transition - circular reveal from toggle button.
    Kill the UA default cross-fade so neither layer flashes opacity
    before our JS clip-path animation takes over. */
