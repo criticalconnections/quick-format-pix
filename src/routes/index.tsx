@@ -131,19 +131,19 @@ function Landing() {
         <div
           role="dialog"
           aria-label="Cookie notice"
-          className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:max-w-md"
+          className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-3xl sm:inset-x-0 sm:bottom-6"
         >
           <div
-            className="brutal-card flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:gap-4 sm:p-5"
+            className="brutal-card mx-auto flex flex-col items-center gap-4 p-5 text-center sm:gap-5 sm:p-7"
             style={{ background: "var(--paper)" }}
           >
             <div
-              className="brutal-card-sm shrink-0 self-start px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest"
+              className="brutal-card-sm px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-widest sm:text-sm"
               style={{ background: "var(--accent-lime)" }}
             >
               ⚠ Notice
             </div>
-            <p className="font-mono text-[11px] leading-relaxed text-[var(--ink)] sm:text-xs">
+            <p className="font-mono text-sm leading-relaxed text-[var(--ink)] sm:text-base md:text-lg">
               This site uses <strong>0 cookies</strong>, <strong>0 trackers</strong>,
               and <strong>0 analytics</strong>. There is no "Accept All" button
               because there is nothing to accept. You may now close this banner
@@ -151,7 +151,7 @@ function Landing() {
             </p>
             <button
               onClick={() => setCookieDismissed(true)}
-              className="brutal-card-sm shrink-0 self-stretch bg-[var(--paper)] px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-[var(--accent-lime)] sm:self-start"
+              className="brutal-card-sm bg-[var(--paper)] px-6 py-2.5 font-mono text-xs font-bold uppercase tracking-widest hover:bg-[var(--accent-lime)] sm:text-sm"
             >
               Close
             </button>
