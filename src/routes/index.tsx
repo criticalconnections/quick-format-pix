@@ -65,10 +65,8 @@ const TOOLS: Tool[] = [
 ];
 
 function Landing() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-  usePageEnter(heroRef);
-  useScrollReveal(gridRef);
+  const heroRef = usePageEnter<HTMLDivElement>();
+  const gridRef = useScrollReveal<HTMLDivElement>();
 
   return (
     <main className="min-h-screen">
