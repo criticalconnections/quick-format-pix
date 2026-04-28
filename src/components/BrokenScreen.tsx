@@ -2,13 +2,15 @@ import { useEffect, useRef } from "react";
 
 interface BrokenScreenProps {
   onReset: () => void;
+  /** Intensity multiplier for shake (1 = base). Higher = more violent. */
+  intensity?: number;
 }
 
 /**
  * Full-screen "cracked glass" overlay. Procedurally draws a fracture pattern
  * onto a canvas and overlays a dismiss prompt. Esc / click / any key resets.
  */
-export function BrokenScreen({ onReset }: BrokenScreenProps) {
+export function BrokenScreen({ onReset, intensity = 1 }: BrokenScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
