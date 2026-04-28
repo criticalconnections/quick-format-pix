@@ -11,7 +11,7 @@ export const FORMAT_META: Record<OutputFormat, { mime: string; ext: string; labe
 export const ACCEPTED_INPUT =
   "image/*,.heic,.heif,.HEIC,.HEIF,.jpg,.jpeg,.png,.webp,.gif,.bmp,.tiff,.avif";
 
-function isHeic(file: File) {
+function extLooksHeic(file: File) {
   const n = file.name.toLowerCase();
   return (
     n.endsWith(".heic") ||
@@ -21,15 +21,57 @@ function isHeic(file: File) {
   );
 }
 
+// Sniff the ISO-BMFF "ftyp" box to confirm a file is actually HEIC/HEIF.
+// HEIC files start with: [4 bytes size][ftyp][brand]. Brand is one of
+// heic, heix, hevc, hevx, mif1, msf1, heim, heis, hevm, hevs.
+async function isReallyHeic(file: File): Promise<boolean> {
+  try {
+    const head = new Uint8Array(await file.slice(0, 32).arrayBuffer());
+    if (head.length < 12) return false;
+    const ascii = String.fromCharCode(...head);
+    if (ascii.slice(4, 8) !== "ftyp") return false;
+    const brand = ascii.slice(8, 12).toLowerCase();
+    return ["heic", "heix", "hevc", "hevx", "mif1", "msf1", "heim", "heis", "hevm", "hevs"].includes(brand);
+  } catch {
+    return false;
+  }
+}
+
 async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: number; height: number }> {
   let blob: Blob = file;
-  if (isHeic(file)) {
-    const { default: heic2any } = await import("heic2any");
-    const out = await heic2any({ blob: file, toType: "image/png" });
-    blob = Array.isArray(out) ? out[0] : out;
+  const looksHeic = extLooksHeic(file);
+  const reallyHeic = looksHeic ? await isReallyHeic(file) : false;
+
+  if (reallyHeic) {
+    try {
+      const { default: heic2any } = await import("heic2any");
+      const out = await heic2any({ blob: file, toType: "image/png" });
+      blob = Array.isArray(out) ? out[0] : out;
+    } catch (err) {
+      const msg = (err as Error)?.message || String(err);
+      if (/libheif|format not supported|ERR_LIBHEIF/i.test(msg)) {
+        throw new Error(
+          "HEIC variant not supported by the in-browser decoder (likely HEVC 10-bit or HDR). Try re-exporting from Photos as 'Most Compatible'.",
+        );
+      }
+      throw err;
+    }
+  } else if (looksHeic) {
+    // Misnamed file — try the browser's native decoder directly.
+    try {
+      const bitmap = await createImageBitmap(file);
+      return { bitmap, width: bitmap.width, height: bitmap.height };
+    } catch {
+      throw new Error("File has a .heic extension but isn't valid HEIC data.");
+    }
   }
-  const bitmap = await createImageBitmap(blob);
-  return { bitmap, width: bitmap.width, height: bitmap.height };
+
+  try {
+    const bitmap = await createImageBitmap(blob);
+    return { bitmap, width: bitmap.width, height: bitmap.height };
+  } catch {
+    throw new Error("Browser couldn't decode this image.");
+  }
 }
 
 export async function convertImage(
