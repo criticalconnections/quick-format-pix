@@ -144,6 +144,42 @@ export async function convertImage(
   return { blob, name: `${baseName}.${meta.ext}` };
 }
 
+export interface FileDebugInfo {
+  size: number;
+  mime: string;
+  firstBytesHex: string;
+  firstBytesAscii: string;
+  ftypBrand: string | null;
+  extLooksHeic: boolean;
+  isReallyHeic: boolean;
+}
+
+export async function gatherDebug(file: File): Promise<FileDebugInfo> {
+  const head = new Uint8Array(await file.slice(0, 32).arrayBuffer());
+  const hex = Array.from(head)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join(" ");
+  const ascii = Array.from(head)
+    .map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : "."))
+    .join("");
+  let brand: string | null = null;
+  if (head.length >= 12) {
+    const tag = String.fromCharCode(...head.slice(4, 8));
+    if (tag === "ftyp") brand = String.fromCharCode(...head.slice(8, 12));
+  }
+  const looks = extLooksHeic(file);
+  const real = looks ? await isReallyHeic(file) : false;
+  return {
+    size: file.size,
+    mime: file.type || "(empty)",
+    firstBytesHex: hex,
+    firstBytesAscii: ascii,
+    ftypBrand: brand,
+    extLooksHeic: looks,
+    isReallyHeic: real,
+  };
+}
+
 export function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import JSZip from "jszip";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
@@ -6,7 +6,9 @@ import {
   convertImage,
   FORMAT_META,
   formatBytes,
+  gatherDebug,
   isNonRetryableConversionError,
+  type FileDebugInfo,
   type OutputFormat,
 } from "@/lib/imageConvert";
 
@@ -25,6 +27,8 @@ interface Item {
   outPath?: string; // full path for zip output (e.g. "photos/2024/img.jpg")
   outSize?: number;
   error?: string;
+  debug?: FileDebugInfo;
+  decoderError?: string; // raw decoder error message (last attempt)
 }
 
 type ZipStage = "reading" | "scanning" | "extracting" | "done" | "error";
@@ -69,7 +73,29 @@ export function Converter() {
   const [quality, setQuality] = useState(92);
   const [dragOver, setDragOver] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [openDebug, setOpenDebug] = useState<Record<string, boolean>>({});
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Gather debug info (magic bytes, MIME, HEIC sniff) for any item missing it.
+  useEffect(() => {
+    const pending = items.filter((i) => !i.debug);
+    if (pending.length === 0) return;
+    let cancelled = false;
+    void (async () => {
+      for (const it of pending) {
+        try {
+          const dbg = await gatherDebug(it.file);
+          if (cancelled) return;
+          setItems((prev) => prev.map((p) => (p.id === it.id ? { ...p, debug: dbg } : p)));
+        } catch {
+          /* ignore */
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [items]);
 
   const stats = useMemo(() => {
     const done = items.filter((i) => i.status === "done").length;
@@ -270,6 +296,7 @@ export function Converter() {
       status: "error",
       progress: 0,
       error: lastError?.message ?? "Conversion failed",
+      decoderError: lastError ? `${lastError.name}: ${lastError.message}` : "Unknown error",
     });
   };
 
@@ -649,6 +676,76 @@ export function Converter() {
                   />
                 </div>
               )}
+
+              {/* Debug panel */}
+              <div className="mt-3">
+                <button
+                  onClick={() =>
+                    setOpenDebug((p) => ({ ...p, [item.id]: !p[item.id] }))
+                  }
+                  className="font-mono text-[10px] uppercase tracking-widest border border-ink px-2 py-0.5 hover:bg-ink hover:text-paper"
+                >
+                  {openDebug[item.id] ? "▾ Debug" : "▸ Debug"}
+                </button>
+                {openDebug[item.id] && (
+                  <div
+                    className="mt-2 p-3 border-2 border-ink font-mono text-[11px] leading-relaxed whitespace-pre-wrap break-all"
+                    style={{ background: "color-mix(in oklch, var(--ink) 6%, var(--paper))" }}
+                  >
+                    {item.debug ? (
+                      <>
+                        <div>
+                          <span className="text-ink/50">size:</span>{" "}
+                          {formatBytes(item.debug.size)} ({item.debug.size} B)
+                        </div>
+                        <div>
+                          <span className="text-ink/50">mime:</span> {item.debug.mime}
+                        </div>
+                        <div>
+                          <span className="text-ink/50">ext looks heic:</span>{" "}
+                          {String(item.debug.extLooksHeic)}
+                        </div>
+                        <div>
+                          <span className="text-ink/50">ftyp brand:</span>{" "}
+                          {item.debug.ftypBrand ?? "(none)"}
+                        </div>
+                        <div>
+                          <span className="text-ink/50">is really heic:</span>{" "}
+                          <span
+                            style={{
+                              color: item.debug.isReallyHeic
+                                ? "var(--accent-lime)"
+                                : "var(--destructive)",
+                              background: "var(--ink)",
+                              padding: "0 4px",
+                            }}
+                          >
+                            {String(item.debug.isReallyHeic)}
+                          </span>
+                        </div>
+                        <div className="mt-1">
+                          <span className="text-ink/50">first 32 bytes (hex):</span>
+                          <div>{item.debug.firstBytesHex}</div>
+                        </div>
+                        <div className="mt-1">
+                          <span className="text-ink/50">first 32 bytes (ascii):</span>
+                          <div>{item.debug.firstBytesAscii}</div>
+                        </div>
+                        {item.decoderError && (
+                          <div className="mt-1">
+                            <span className="text-ink/50">decoder error:</span>
+                            <div style={{ color: "var(--destructive)" }}>
+                              {item.decoderError}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-ink/50">Reading file…</div>
+                    )}
+                  </div>
+                )}
+              </div>
             </li>
           ))}
         </ul>
