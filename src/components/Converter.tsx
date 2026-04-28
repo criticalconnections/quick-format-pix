@@ -314,8 +314,22 @@ export function Converter() {
 
   const downloadZip = async () => {
     const zip = new JSZip();
+    // Avoid path collisions across archives by namespacing zip-sourced files
+    // under a folder named after their origin archive (without .zip).
+    const seen = new Set<string>();
     items.forEach((i) => {
-      if (i.outBlob && i.outName) zip.file(i.outName, i.outBlob);
+      if (!i.outBlob || !i.outName) return;
+      const sourceFolder = i.source ? i.source.replace(/\.zip$/i, "") + "/" : "";
+      let path = sourceFolder + (i.outPath || i.outName);
+      // Dedupe in case two items resolve to the same path
+      let n = 1;
+      const base = path.replace(/(\.[^.]+)?$/, "");
+      const ext = path.slice(base.length);
+      while (seen.has(path)) {
+        path = `${base} (${++n})${ext}`;
+      }
+      seen.add(path);
+      zip.file(path, i.outBlob);
     });
     const blob = await zip.generateAsync({ type: "blob" });
     const url = URL.createObjectURL(blob);
