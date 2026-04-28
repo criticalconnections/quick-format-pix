@@ -26,6 +26,8 @@ type Tool = {
   number: string;
   name: string;
   tagline: string;
+  description: string;
+  cta: string;
   to:
     | "/imgconvert"
     | "/colors"
@@ -42,17 +44,79 @@ const TOOLS: Tool[] = [
   {
     number: "01",
     name: "WITNESS PROTECTION",
-    tagline: "convert HEICs",
+    tagline: "for HEICs",
+    description:
+      "Apple's proprietary HEIC files get a brand-new identity. Bulk-convert to JPG, PNG, or WEBP without uploading a single byte.",
+    cta: "Relocate my HEICs →",
     to: "/imgconvert",
     accent: true,
   },
-  { number: "02", name: "COLOR HEIST", tagline: "steal palettes", to: "/colors" },
-  { number: "03", name: "PASSWORD FACTORY", tagline: "industrial strength", to: "/passwords" },
-  { number: "04", name: "GETAWAY DRIVER", tagline: "shrink the evidence", to: "/compress" },
-  { number: "05", name: "THE FENCE", tagline: "QR codes — move anything", to: "/qr" },
-  { number: "06", name: "THE ALIBI", tagline: "strip metadata", to: "/strip", accent: true },
-  { number: "07", name: "SHELL COMPANY", tagline: "base64 launderer", to: "/base64" },
-  { number: "08", name: "THE FORGER", tagline: "favicon generator", to: "/favicon" },
+  {
+    number: "02",
+    name: "COLOR HEIST",
+    tagline: "from any image",
+    description:
+      "Drop a photo. Walk away with its dominant swatches plus complementary, analogous, triadic, and monochrome palettes.",
+    cta: "Steal some colors →",
+    to: "/colors",
+  },
+  {
+    number: "03",
+    name: "PASSWORD FACTORY",
+    tagline: "industrial strength",
+    description:
+      "Crank out passwords with toggles for length, symbols, ambiguous characters, and bulk batches. The kind your bank wishes you used.",
+    cta: "Make me unhackable →",
+    to: "/passwords",
+    accent: true,
+  },
+  {
+    number: "04",
+    name: "GETAWAY DRIVER",
+    tagline: "shrink the evidence",
+    description:
+      "Bulk image compressor. Drop the file, pick a quality, drive off with something a fraction of the size.",
+    cta: "Shrink it down →",
+    to: "/compress",
+  },
+  {
+    number: "05",
+    name: "THE FENCE",
+    tagline: "move anything anywhere",
+    description:
+      "QR codes for URLs, raw text, or WiFi creds. Custom colors, error correction, exports as PNG or SVG.",
+    cta: "Generate a QR →",
+    to: "/qr",
+  },
+  {
+    number: "06",
+    name: "THE ALIBI",
+    tagline: "your photo was never there",
+    description:
+      "Strip EXIF, GPS, camera, and timestamp metadata from JPGs and PNGs. Plausible deniability, one drop at a time.",
+    cta: "Establish alibi →",
+    to: "/strip",
+    accent: true,
+  },
+  {
+    number: "07",
+    name: "SHELL COMPANY",
+    tagline: "base64 launderer",
+    description:
+      "Encode or decode text and files through base64. Drop a file, get a clean data URL out the back door.",
+    cta: "Launder data →",
+    to: "/base64",
+  },
+  {
+    number: "08",
+    name: "THE FORGER",
+    tagline: "favicon generator",
+    description:
+      "Forge a complete favicon set from any image — every size browsers ask for, plus a multi-res ICO, packed in a zip.",
+    cta: "Forge favicons →",
+    to: "/favicon",
+    accent: true,
+  },
 ];
 
 function Landing() {
