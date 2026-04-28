@@ -73,7 +73,29 @@ export function Converter() {
   const [quality, setQuality] = useState(92);
   const [dragOver, setDragOver] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [openDebug, setOpenDebug] = useState<Record<string, boolean>>({});
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Gather debug info (magic bytes, MIME, HEIC sniff) for any item missing it.
+  useEffect(() => {
+    const pending = items.filter((i) => !i.debug);
+    if (pending.length === 0) return;
+    let cancelled = false;
+    void (async () => {
+      for (const it of pending) {
+        try {
+          const dbg = await gatherDebug(it.file);
+          if (cancelled) return;
+          setItems((prev) => prev.map((p) => (p.id === it.id ? { ...p, debug: dbg } : p)));
+        } catch {
+          /* ignore */
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [items]);
 
   const stats = useMemo(() => {
     const done = items.filter((i) => i.status === "done").length;
