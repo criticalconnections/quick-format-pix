@@ -122,9 +122,41 @@ const TOOLS: Tool[] = [
 function Landing() {
   const heroRef = usePageEnter<HTMLDivElement>();
   const gridRef = useScrollReveal<HTMLDivElement>();
+  const [cookieDismissed, setCookieDismissed] = useState(false);
 
   return (
     <main className="min-h-[100dvh]">
+      {!cookieDismissed && (
+        <div
+          role="dialog"
+          aria-label="Cookie notice"
+          className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:max-w-md"
+        >
+          <div
+            className="brutal-card flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:gap-4 sm:p-5"
+            style={{ background: "var(--paper)" }}
+          >
+            <div
+              className="brutal-card-sm shrink-0 self-start px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest"
+              style={{ background: "var(--accent-lime)" }}
+            >
+              ⚠ Notice
+            </div>
+            <p className="font-mono text-[11px] leading-relaxed text-[var(--ink)] sm:text-xs">
+              This site uses <strong>0 cookies</strong>, <strong>0 trackers</strong>,
+              and <strong>0 analytics</strong>. There is no "Accept All" button
+              because there is nothing to accept. You may now close this banner
+              and reflect on how strange that feels.
+            </p>
+            <button
+              onClick={() => setCookieDismissed(true)}
+              className="brutal-card-sm shrink-0 self-stretch bg-[var(--paper)] px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-[var(--accent-lime)] sm:self-start"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
       <div className="mx-auto flex min-h-[100dvh] max-w-6xl flex-col px-4 py-3 sm:px-6 sm:py-5">
         {/* Top bar */}
         <header className="flex shrink-0 items-center justify-between gap-3">
