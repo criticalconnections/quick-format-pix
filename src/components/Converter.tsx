@@ -154,7 +154,7 @@ export function Converter() {
       }
 
       // 4. Extract entries one by one with live progress
-      const extracted: File[] = [];
+      const extracted: { file: File; path: string }[] = [];
       for (let i = 0; i < entries.length; i++) {
         const entry = entries[i];
         const shortName = entry.name.split("/").pop() || entry.name;
@@ -164,7 +164,7 @@ export function Converter() {
         const f = new File([blob], shortName, {
           type: blob.type || "application/octet-stream",
         });
-        extracted.push(f);
+        extracted.push({ file: f, path: entry.name });
 
         const pct = 30 + Math.round(((i + 1) / entries.length) * 65);
         updateZip(id, { extracted: i + 1, progress: pct });
