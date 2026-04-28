@@ -494,12 +494,13 @@ export function Converter() {
                   ↻ Retry failed ({stats.failed})
                 </button>
               )}
-              {stats.done > 1 && (
+              {stats.done >= 1 && (
                 <button
                   onClick={downloadZip}
+                  title="Download all converted files as a ZIP, preserving original folder structure for files extracted from archives"
                   className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-[var(--accent-lime)]"
                 >
-                  ↓ ZIP all
+                  ↓ Download all ({stats.done}) · keep folders
                 </button>
               )}
               <button
