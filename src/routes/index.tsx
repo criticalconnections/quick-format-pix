@@ -185,9 +185,8 @@ function Landing() {
           <h1 className="mt-2 font-display text-[2.25rem] font-bold leading-[0.95] tracking-tight sm:mt-3 sm:text-6xl md:text-7xl">
             TINY TOOLS.{" "}
             <span
-              onClick={handleAttitudeTap}
               onTouchStart={handleAttitudeTap}
-              className="inline-block cursor-pointer px-2 select-none sm:px-3"
+              className="inline-block px-2 select-none sm:px-3"
               style={{ background: "var(--accent-lime)" }}
             >
               BIG ATTITUDE.
