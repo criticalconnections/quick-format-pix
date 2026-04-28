@@ -203,6 +203,21 @@ body {
   --shadow-brutal-sm: 3px 3px 0 0 var(--ink);
 }
 
+/* Force readable dark text on any lime-accented surface, regardless of theme.
+   Covers both bg-[var(--accent-lime)] (background-color) and inline
+   style={{ background: 'var(--accent-lime)' }} (background shorthand). */
+[class*="bg-[var(--accent-lime)]"],
+[style*="--accent-lime"],
+[style*="background: var(--accent-lime)"],
+[style*="background:var(--accent-lime)"],
+[style*="background-color: var(--accent-lime)"],
+[style*="background-color:var(--accent-lime)"] {
+  color: var(--accent-lime-foreground);
+}
+[class*="hover:bg-[var(--accent-lime)]"]:hover {
+  color: var(--accent-lime-foreground);
+}
+
 /* Theme sweep transition - circular reveal from toggle button.
    Kill the UA default cross-fade so neither layer flashes opacity
    before our JS clip-path animation takes over. */
