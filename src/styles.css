@@ -149,3 +149,46 @@
     color: var(--color-foreground);
   }
 }
+
+@theme inline {
+  --color-accent-lime: var(--accent-lime);
+  --color-accent-lime-foreground: var(--accent-lime-foreground);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --shadow-brutal: var(--shadow-brutal);
+  --shadow-brutal-sm: var(--shadow-brutal-sm);
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+body {
+  font-family: var(--font-display);
+  background-image:
+    linear-gradient(var(--ink) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ink) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: -1px -1px;
+  background-color: var(--paper);
+  background-blend-mode: normal;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: var(--paper);
+  opacity: 0.96;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.brutal-card {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-brutal);
+}
+.brutal-card-sm {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-brutal-sm);
+}
