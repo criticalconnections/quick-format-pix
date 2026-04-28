@@ -384,26 +384,26 @@ export function Converter() {
   const dismissZip = (id: string) => setZipJobs((prev) => prev.filter((z) => z.id !== id));
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-12">
       {/* Header */}
-      <header className="mb-10">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="h-3 w-3 bg-[var(--accent-lime)] border-2 border-ink" />
-            <span className="font-mono text-xs tracking-widest uppercase">
+      <header className="mb-8 sm:mb-10">
+        <div className="flex items-center justify-between mb-4 gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="h-3 w-3 shrink-0 bg-[var(--accent-lime)] border-2 border-ink" />
+            <span className="font-mono text-[10px] sm:text-xs tracking-widest uppercase truncate">
               v1.0 / Browser-native / No upload
             </span>
           </div>
           <ThemeToggle />
         </div>
-        <h1 className="font-display text-6xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
+        <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
           BULK
           <br />
           <span className="bg-[var(--accent-lime)] px-3 -ml-1 inline-block">CONVERT</span>
           <br />
           IMAGES.
         </h1>
-        <p className="mt-6 font-mono text-sm max-w-md text-ink/70">
+        <p className="mt-5 sm:mt-6 font-mono text-sm max-w-md text-ink/70">
           Drop HEIC, JPG, PNG, WEBP, GIF, BMP. Pick a target format. Done — everything stays in your
           browser.
         </p>
@@ -418,7 +418,7 @@ export function Converter() {
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
         onClick={() => inputRef.current?.click()}
-        className={`brutal-card cursor-pointer p-10 text-center transition-all ${
+        className={`brutal-card cursor-pointer p-6 sm:p-10 text-center transition-all ${
           dragOver ? "translate-x-[-3px] translate-y-[-3px]" : ""
         }`}
         style={{
@@ -433,17 +433,17 @@ export function Converter() {
           className="hidden"
           onChange={(e) => e.target.files && addFiles(e.target.files)}
         />
-        <div className="font-display text-3xl font-bold mb-2">
-          {dragOver ? "DROP IT" : "DRAG FILES OR .ZIP HERE"}
+        <div className="font-display text-2xl sm:text-3xl font-bold mb-2">
+          {dragOver ? "DROP IT" : <><span className="sm:hidden">TAP TO ADD FILES</span><span className="hidden sm:inline">DRAG FILES OR .ZIP HERE</span></>}
         </div>
-        <div className="font-mono text-xs uppercase tracking-widest text-ink/60">
-          or click to browse · images + zip archives supported
+        <div className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-ink/60">
+          <span className="hidden sm:inline">or click to browse · </span>images + zip archives supported
         </div>
       </div>
 
       {/* Controls */}
-      <div className="grid md:grid-cols-2 gap-6 mt-8">
-        <div className="brutal-card-sm p-6">
+      <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
+        <div className="brutal-card-sm p-5 sm:p-6">
           <div className="font-mono text-xs uppercase tracking-widest mb-3">01 / Output format</div>
           <div className="flex gap-2">
             {FORMATS.map((f) => (
