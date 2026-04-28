@@ -317,7 +317,12 @@ export function Converter() {
 
   const removeItem = (id: string) =>
     setItems((prev) => prev.filter((p) => p.id !== id));
-  const clearAll = () => setItems([]);
+  const clearAll = () => {
+    setItems([]);
+    setZipJobs([]);
+  };
+  const dismissZip = (id: string) =>
+    setZipJobs((prev) => prev.filter((z) => z.id !== id));
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-12">
