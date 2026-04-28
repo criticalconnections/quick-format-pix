@@ -478,7 +478,7 @@ export function Converter() {
                 key={f}
                 onClick={() => setFormat(f)}
                 className={`flex-1 py-3 font-display font-bold border-2 border-ink transition-all ${
-                  format === f ? "bg-ink text-paper" : "bg-paper hover:bg-[var(--accent-lime)]"
+                  format === f ? "bg-ink text-paper" : "bg-paper text-ink hover:bg-[var(--accent-lime)]"
                 }`}
               >
                 {FORMAT_META[f].label}
