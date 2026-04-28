@@ -2,6 +2,16 @@
 
 export type OutputFormat = "jpeg" | "png" | "webp";
 
+export class ConversionError extends Error {
+  retryable: boolean;
+
+  constructor(message: string, retryable = true) {
+    super(message);
+    this.name = "ConversionError";
+    this.retryable = retryable;
+  }
+}
+
 export const FORMAT_META: Record<OutputFormat, { mime: string; ext: string; label: string }> = {
   jpeg: { mime: "image/jpeg", ext: "jpg", label: "JPG" },
   png: { mime: "image/png", ext: "png", label: "PNG" },
@@ -19,6 +29,10 @@ function extLooksHeic(file: File) {
     file.type === "image/heic" ||
     file.type === "image/heif"
   );
+}
+
+export function isNonRetryableConversionError(err: unknown) {
+  return err instanceof ConversionError && !err.retryable;
 }
 
 // Sniff the ISO-BMFF "ftyp" box to confirm a file is actually HEIC/HEIF.
@@ -57,11 +71,12 @@ async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: n
       const e = err as { message?: string; code?: unknown; subcode?: unknown };
       const msg = e?.message || (e?.code !== undefined ? `libheif code ${String(e.code)}/${String(e.subcode)}` : String(err));
       if (/libheif|format not supported|ERR_LIBHEIF|parse HEIF|code/i.test(msg)) {
-        throw new Error(
-          "HEIC decoder couldn't parse this file (often HEVC 10-bit, HDR, or a Live Photo). Re-export from Photos as 'Most Compatible' (JPEG) or open on a Mac and export as HEIC 8-bit.",
+        throw new ConversionError(
+          "HEIC decoder couldn't parse this file. It is likely an unsupported HEIC variant such as HEVC 10-bit, HDR, ProRAW, or a Live Photo still. Export it from Photos as Most Compatible/JPEG, then convert again.",
+          false,
         );
       }
-      throw new Error(msg);
+      throw new ConversionError(msg);
     }
   } else if (looksHeic) {
     // Misnamed file — try the browser's native decoder directly.
@@ -69,7 +84,7 @@ async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: n
       const bitmap = await createImageBitmap(file);
       return { bitmap, width: bitmap.width, height: bitmap.height };
     } catch {
-      throw new Error("File has a .heic extension but isn't valid HEIC data.");
+      throw new ConversionError("File has a .heic extension but isn't valid HEIC data.", false);
     }
   }
 
@@ -77,7 +92,7 @@ async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: n
     const bitmap = await createImageBitmap(blob);
     return { bitmap, width: bitmap.width, height: bitmap.height };
   } catch {
-    throw new Error("Browser couldn't decode this image.");
+    throw new ConversionError("Browser couldn't decode this image.", false);
   }
 }
 
