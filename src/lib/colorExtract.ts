@@ -83,31 +83,55 @@ export function hexToRgb(hex: string): [number, number, number] {
 
 // ---------- naming (rough perceptual buckets) ----------
 
+// Hue buckets tuned for OKLCH hue angles (perceptually uniform, so ranges
+// differ from HSL). Brown/tan emerges from low-L + low-C orange/red, handled below.
 const HUE_NAMES: { max: number; name: string }[] = [
-  { max: 15, name: "Red" },
-  { max: 40, name: "Orange" },
-  { max: 65, name: "Amber" },
-  { max: 90, name: "Yellow" },
-  { max: 150, name: "Green" },
-  { max: 195, name: "Teal" },
-  { max: 240, name: "Blue" },
-  { max: 280, name: "Indigo" },
-  { max: 320, name: "Magenta" },
-  { max: 345, name: "Pink" },
+  { max: 20, name: "Red" },
+  { max: 50, name: "Orange" },
+  { max: 75, name: "Amber" },
+  { max: 105, name: "Yellow" },
+  { max: 165, name: "Green" },
+  { max: 210, name: "Teal" },
+  { max: 255, name: "Blue" },
+  { max: 295, name: "Indigo" },
+  { max: 330, name: "Magenta" },
+  { max: 355, name: "Pink" },
   { max: 360, name: "Red" },
 ];
 
 export function nameColor(L: number, C: number, h: number): string {
-  if (C < 0.02) {
-    if (L < 0.15) return "Black";
-    if (L < 0.35) return "Charcoal";
-    if (L < 0.6) return "Gray";
-    if (L < 0.85) return "Silver";
+  // Achromatic (true grays)
+  if (C < 0.025) {
+    if (L < 0.18) return "Black";
+    if (L < 0.4) return "Charcoal";
+    if (L < 0.65) return "Gray";
+    if (L < 0.88) return "Silver";
     return "White";
   }
+
   const hue = HUE_NAMES.find((b) => h <= b.max)?.name ?? "Color";
-  const tone = L < 0.35 ? "Deep " : L < 0.55 ? "" : L < 0.75 ? "Light " : "Pale ";
-  return `${tone}${hue}`.trim();
+
+  // Earth tones: low-chroma warm hues at mid lightness are "tan/beige/brown",
+  // not "light orange". Catches things like #A67467 (dusty pink) and #D0B5A6 (beige).
+  const isWarm = hue === "Red" || hue === "Orange" || hue === "Amber" || hue === "Yellow";
+  if (C < 0.06 && isWarm) {
+    if (L < 0.35) return "Brown";
+    if (L < 0.55) return "Taupe";
+    if (L < 0.75) return "Tan";
+    return "Beige";
+  }
+  // Cool low-chroma → slate family
+  if (C < 0.05 && !isWarm) {
+    if (L < 0.4) return "Slate";
+    if (L < 0.7) return "Stone";
+    return "Mist";
+  }
+
+  // Saturation qualifier for muted-but-not-gray colors
+  const muted = C < 0.1 ? "Muted " : C < 0.16 ? "Dusty " : "";
+  // Lightness qualifier
+  const tone = L < 0.3 ? "Deep " : L < 0.5 ? "Dark " : L < 0.7 ? "" : L < 0.85 ? "Light " : "Pale ";
+  return `${tone}${muted}${hue}`.trim().replace(/\s+/g, " ");
 }
 
 // ---------- contrast ----------
@@ -157,10 +181,41 @@ function sampleImage(img: HTMLImageElement, maxDim = 160): Pixel[] {
   return pixels;
 }
 
-function kmeans(pixels: Pixel[], k: number, iterations = 12) {
+// Mulberry32: tiny seeded PRNG. Deterministic results for the same seed.
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Hash the pixel buffer so identical images produce identical seeds.
+function hashPixels(pixels: Pixel[]): number {
+  let h = 2166136261 >>> 0;
+  // Sample every Nth pixel for speed; still stable for the same input.
+  const stride = Math.max(1, Math.floor(pixels.length / 2048));
+  for (let i = 0; i < pixels.length; i += stride) {
+    const p = pixels[i];
+    h ^= Math.round(p.L * 1000);
+    h = Math.imul(h, 16777619);
+    h ^= Math.round(p.a * 1000);
+    h = Math.imul(h, 16777619);
+    h ^= Math.round(p.b * 1000);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function kmeans(pixels: Pixel[], k: number, iterations = 25) {
   if (pixels.length === 0) return [];
-  // k-means++ init
-  const centers: Pixel[] = [pixels[Math.floor(Math.random() * pixels.length)]];
+  const rand = mulberry32(hashPixels(pixels) ^ (k * 0x9e3779b1));
+
+  // k-means++ init with seeded PRNG
+  const centers: Pixel[] = [pixels[Math.floor(rand() * pixels.length)]];
   while (centers.length < k) {
     const dists = pixels.map((p) => {
       let min = Infinity;
@@ -171,7 +226,7 @@ function kmeans(pixels: Pixel[], k: number, iterations = 12) {
       return min;
     });
     const total = dists.reduce((a, b) => a + b, 0);
-    let r = Math.random() * total;
+    let r = rand() * total;
     let idx = 0;
     for (let i = 0; i < dists.length; i++) {
       r -= dists[i];
@@ -184,6 +239,7 @@ function kmeans(pixels: Pixel[], k: number, iterations = 12) {
   }
 
   const assign = new Int32Array(pixels.length);
+  let prevShift = Infinity;
   for (let iter = 0; iter < iterations; iter++) {
     // assign
     for (let i = 0; i < pixels.length; i++) {
@@ -200,7 +256,7 @@ function kmeans(pixels: Pixel[], k: number, iterations = 12) {
       }
       assign[i] = best;
     }
-    // update
+    // update + measure shift for early termination
     const sums = centers.map(() => ({ L: 0, a: 0, b: 0, n: 0 }));
     for (let i = 0; i < pixels.length; i++) {
       const s = sums[assign[i]];
@@ -210,12 +266,19 @@ function kmeans(pixels: Pixel[], k: number, iterations = 12) {
       s.b += p.b;
       s.n++;
     }
+    let shift = 0;
     for (let j = 0; j < centers.length; j++) {
       const s = sums[j];
       if (s.n > 0) {
-        centers[j] = { L: s.L / s.n, a: s.a / s.n, b: s.b / s.n };
+        const nL = s.L / s.n;
+        const na = s.a / s.n;
+        const nb = s.b / s.n;
+        shift += (centers[j].L - nL) ** 2 + (centers[j].a - na) ** 2 + (centers[j].b - nb) ** 2;
+        centers[j] = { L: nL, a: na, b: nb };
       }
     }
+    if (shift < 1e-7 || Math.abs(prevShift - shift) < 1e-9) break;
+    prevShift = shift;
   }
 
   // populations
