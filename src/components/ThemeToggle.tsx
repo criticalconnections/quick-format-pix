@@ -35,7 +35,7 @@ export function ThemeToggle() {
     localStorage.setItem("theme", next);
 
     const doc = document as Document & {
-      startViewTransition?: (cb: () => void) => { ready: Promise<void> };
+      startViewTransition?: (cb: () => void) => { ready: Promise<void>; finished: Promise<void> };
     };
 
     // Fallback if View Transitions API unavailable
@@ -53,26 +53,44 @@ export function ThemeToggle() {
       Math.max(y, window.innerHeight - y)
     );
 
+    // Mark direction so CSS can flip z-index of old/new layers
+    const goingDark = next === "dark";
+    document.documentElement.classList.toggle("theme-sweep-out", !goingDark);
+
     const transition = doc.startViewTransition(() => {
       setTheme(next);
       applyTheme(next);
     });
 
-    await transition.ready;
+    try {
+      await transition.ready;
 
-    const clipPath = [
-      `circle(0px at ${x}px ${y}px)`,
-      `circle(${endRadius}px at ${x}px ${y}px)`,
-    ];
+      // When going dark: animate the NEW (dark) layer expanding in.
+      // When going light: animate the OLD (dark) layer shrinking out,
+      // revealing the new light layer beneath.
+      const pseudo = goingDark
+        ? "::view-transition-new(root)"
+        : "::view-transition-old(root)";
+      const keyframes = goingDark
+        ? [
+            { clipPath: `circle(0px at ${x}px ${y}px)` },
+            { clipPath: `circle(${endRadius}px at ${x}px ${y}px)` },
+          ]
+        : [
+            { clipPath: `circle(${endRadius}px at ${x}px ${y}px)` },
+            { clipPath: `circle(0px at ${x}px ${y}px)` },
+          ];
 
-    document.documentElement.animate(
-      { clipPath: next === "dark" ? clipPath : [...clipPath].reverse() },
-      {
-        duration: 600,
+      document.documentElement.animate(keyframes, {
+        duration: 650,
         easing: "cubic-bezier(0.83, 0, 0.17, 1)",
-        pseudoElement: next === "dark" ? "::view-transition-new(root)" : "::view-transition-old(root)",
-      }
-    );
+        pseudoElement: pseudo,
+      });
+
+      await transition.finished;
+    } finally {
+      document.documentElement.classList.remove("theme-sweep-out");
+    }
   };
 
   return (
