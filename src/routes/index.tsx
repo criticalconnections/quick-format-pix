@@ -277,6 +277,7 @@ function Landing() {
           </span>
         </footer>
       </div>
+      {broken && <BrokenScreen onReset={reset} />}
     </main>
   );
 }
