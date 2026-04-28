@@ -460,7 +460,7 @@ export function Converter() {
           </div>
         </div>
 
-        <div className="brutal-card-sm p-6">
+        <div className="brutal-card-sm p-5 sm:p-6">
           <div className="font-mono text-xs uppercase tracking-widest mb-3 flex justify-between">
             <span>02 / Quality</span>
             <span>{quality}%</span>
@@ -482,8 +482,8 @@ export function Converter() {
 
       {/* Action bar + overall progress */}
       {items.length > 0 && (
-        <div className="mt-8 space-y-4">
-          <div className="flex flex-wrap gap-3 items-center justify-between">
+        <div className="mt-6 sm:mt-8 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:items-center sm:justify-between">
             <div className="font-mono text-xs uppercase tracking-widest">
               {stats.done}/{stats.total} done
               {stats.failed > 0 && ` · ${stats.failed} failed`}
@@ -491,11 +491,11 @@ export function Converter() {
               {formatBytes(stats.totalIn)}
               {stats.totalOut > 0 && ` → ${formatBytes(stats.totalOut)}`}
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="grid grid-cols-2 sm:flex gap-2 sm:flex-wrap">
               <button
                 onClick={clearAll}
                 disabled={busy}
-                className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-ink hover:text-paper disabled:opacity-40"
+                className="px-4 py-2.5 sm:py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink hover:bg-ink hover:text-paper disabled:opacity-40"
               >
                 Clear
               </button>
@@ -503,7 +503,7 @@ export function Converter() {
                 <button
                   onClick={retryFailed}
                   disabled={busy}
-                  className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-destructive hover:text-destructive-foreground disabled:opacity-40"
+                  className="px-4 py-2.5 sm:py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-destructive hover:text-destructive-foreground disabled:opacity-40"
                 >
                   ↻ Retry failed ({stats.failed})
                 </button>
@@ -512,7 +512,7 @@ export function Converter() {
                 <button
                   onClick={downloadZip}
                   title="Download all converted files as a ZIP, preserving original folder structure for files extracted from archives"
-                  className="px-4 py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-[var(--accent-lime)]"
+                  className="col-span-2 px-4 py-2.5 sm:py-2 font-mono text-xs uppercase tracking-widest border-2 border-ink bg-paper hover:bg-[var(--accent-lime)]"
                 >
                   ↓ Download all ({stats.done}) · keep folders
                 </button>
@@ -520,7 +520,7 @@ export function Converter() {
               <button
                 onClick={convertAll}
                 disabled={busy || items.every((i) => i.status === "done")}
-                className="px-6 py-2 font-display font-bold border-2 border-ink bg-[var(--accent-lime)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--shadow-brutal-sm)] transition-all disabled:opacity-40 disabled:hover:transform-none disabled:hover:shadow-none"
+                className="col-span-2 px-6 py-3 sm:py-2 font-display font-bold border-2 border-ink bg-[var(--accent-lime)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[var(--shadow-brutal-sm)] transition-all disabled:opacity-40 disabled:hover:transform-none disabled:hover:shadow-none"
               >
                 {busy ? "CONVERTING…" : `CONVERT → ${FORMAT_META[format].label}`}
               </button>
