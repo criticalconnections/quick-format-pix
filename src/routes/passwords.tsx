@@ -217,243 +217,263 @@ function PasswordsPage() {
     revealRoot.current = node;
   };
 
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
   return (
     <main ref={setRefs} className="min-h-screen">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-12">
-        {/* Header */}
-        <header className="mb-8 sm:mb-10" data-reveal>
-          <div className="flex items-center justify-between mb-4 gap-3">
-            <Link
-              to="/"
-              className="font-mono text-[10px] sm:text-xs uppercase tracking-widest border-2 border-ink px-2.5 py-1 hover:bg-ink hover:text-paper"
-            >
-              ← Back
-            </Link>
-            <ThemeToggle />
-          </div>
-          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold tracking-tighter leading-[0.9]">
-            UNCRACKABLE
-            <br />
-            <span className="bg-[var(--accent-lime)] px-3 -ml-1 inline-block">PASSWORDS</span>
-            <br />
-            ON DEMAND.
-          </h1>
-          <p className="mt-5 sm:mt-6 font-mono text-sm max-w-md text-ink/70">
-            Cryptographically strong. Generated locally. Tune every knob — length, charsets,
-            exclusions — then steal them by the dozen.
-          </p>
-        </header>
-
-        {/* Output */}
-        <section data-reveal className="brutal-card p-5 sm:p-6">
-          <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-            <div className="font-mono text-xs uppercase tracking-widest">
-              Output · {opts.count} {opts.count === 1 ? "password" : "passwords"}
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={copyAll}
-                disabled={passwords.length === 0}
-                className="font-mono text-[10px] uppercase tracking-widest border-2 border-ink px-3 py-1.5 hover:bg-[var(--accent-lime)] disabled:opacity-30"
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-4 sm:py-6">
+        {/* Above-the-fold viewport: header + basics */}
+        <div className="min-h-[calc(100vh-2rem)] sm:min-h-[calc(100vh-3rem)] flex flex-col gap-4">
+          {/* Header — compact */}
+          <header data-reveal>
+            <div className="flex items-center justify-between mb-3 gap-3">
+              <Link
+                to="/"
+                className="font-mono text-[10px] sm:text-xs uppercase tracking-widest border-2 border-ink px-2.5 py-1 hover:bg-ink hover:text-paper"
               >
-                {copiedIdx === -1 ? "✓ Copied all" : "Copy all"}
-              </button>
-              <button
-                onClick={generate}
-                className="font-display font-bold text-sm uppercase border-2 border-ink px-4 py-1.5 bg-ink text-paper hover:bg-[var(--accent-lime)] hover:text-ink"
-              >
-                ↻ Re-roll
-              </button>
+                ← Back
+              </Link>
+              <ThemeToggle />
             </div>
-          </div>
+            <h1 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tighter leading-[0.9]">
+              UNCRACKABLE{" "}
+              <span className="bg-[var(--accent-lime)] px-2 inline-block">PASSWORDS</span>{" "}
+              ON DEMAND.
+            </h1>
+          </header>
 
-          {noCharsets ? (
-            <div
-              className="brutal-card-sm p-4 font-mono text-xs"
-              style={{ background: "color-mix(in oklch, var(--destructive) 18%, var(--paper))" }}
-            >
-              ! Pick at least one character set below.
-            </div>
-          ) : (
-            <ul className="space-y-2">
-              {passwords.map((pw, i) => (
-                <li
-                  key={i}
-                  className="brutal-card-sm p-3 flex items-center justify-between gap-3 group"
+          {/* Output */}
+          <section data-reveal className="brutal-card p-4 sm:p-5">
+            <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+              <div className="font-mono text-xs uppercase tracking-widest">
+                Output · {opts.count}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={copyAll}
+                  disabled={passwords.length === 0}
+                  className="font-mono text-[10px] uppercase tracking-widest border-2 border-ink px-3 py-1.5 hover:bg-[var(--accent-lime)] disabled:opacity-30"
                 >
-                  <code className="font-mono text-sm sm:text-base break-all select-all">
-                    {pw || "—"}
-                  </code>
-                  <button
-                    onClick={() => copy(pw, i)}
-                    className="font-mono text-[10px] uppercase tracking-widest border border-ink px-2 py-1 hover:bg-ink hover:text-paper shrink-0"
-                  >
-                    {copiedIdx === i ? "✓" : "Copy"}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {/* Strength meter */}
-          <div className="mt-5 pt-5 border-t-2 border-ink">
-            <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-2">
-              <span>Strength · {strength.label}</span>
-              <span>
-                {bits} bits · pool {alphabetSize}
-              </span>
+                  {copiedIdx === -1 ? "✓ Copied all" : "Copy all"}
+                </button>
+                <button
+                  onClick={generate}
+                  className="font-display font-bold text-sm uppercase border-2 border-ink px-4 py-1.5 bg-ink text-paper hover:bg-[var(--accent-lime)] hover:text-ink"
+                >
+                  ↻ Re-roll
+                </button>
+              </div>
             </div>
-            <div className="h-3 border-2 border-ink overflow-hidden bg-paper">
+
+            {noCharsets ? (
               <div
-                className="h-full transition-all duration-500 ease-out"
-                style={{
-                  width: `${strength.pct}%`,
-                  background: strength.color,
-                }}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Length */}
-        <section data-reveal-scroll className="brutal-card-sm p-5 sm:p-6 mt-6">
-          <div className="font-mono text-xs uppercase tracking-widest mb-3 flex justify-between">
-            <span>01 / Length</span>
-            <span>{opts.length}</span>
-          </div>
-          <input
-            type="range"
-            min={4}
-            max={128}
-            value={opts.length}
-            onChange={(e) => update("length", parseInt(e.target.value))}
-            className="w-full accent-[var(--accent-lime)]"
-          />
-          <div className="flex flex-wrap gap-2 mt-3">
-            {[8, 12, 16, 20, 32, 64].map((n) => (
-              <button
-                key={n}
-                onClick={() => update("length", n)}
-                className={`font-mono text-xs border-2 border-ink px-2.5 py-1 ${
-                  opts.length === n ? "bg-ink text-paper" : "hover:bg-[var(--accent-lime)]"
-                }`}
+                className="brutal-card-sm p-3 font-mono text-xs"
+                style={{ background: "color-mix(in oklch, var(--destructive) 18%, var(--paper))" }}
               >
-                {n}
-              </button>
-            ))}
-          </div>
-        </section>
+                ! Pick at least one character set below.
+              </div>
+            ) : (
+              <ul
+                className="space-y-1.5 overflow-y-auto pr-1"
+                style={{ maxHeight: "min(38vh, 320px)" }}
+              >
+                {passwords.map((pw, i) => (
+                  <li
+                    key={i}
+                    className="brutal-card-sm p-2.5 flex items-center justify-between gap-3"
+                  >
+                    <code className="font-mono text-xs sm:text-sm break-all select-all">
+                      {pw || "—"}
+                    </code>
+                    <button
+                      onClick={() => copy(pw, i)}
+                      className="font-mono text-[10px] uppercase tracking-widest border border-ink px-2 py-1 hover:bg-ink hover:text-paper shrink-0"
+                    >
+                      {copiedIdx === i ? "✓" : "Copy"}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
 
-        {/* Character sets */}
-        <section data-reveal-scroll className="brutal-card-sm p-5 sm:p-6 mt-6">
-          <div className="font-mono text-xs uppercase tracking-widest mb-4">
-            02 / Character sets
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3">
-            <Toggle
-              label="Lowercase"
-              hint="abcdefghijklmnopqrstuvwxyz"
-              checked={opts.lower}
-              onChange={(v) => update("lower", v)}
-            />
-            <Toggle
-              label="Uppercase"
-              hint="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-              checked={opts.upper}
-              onChange={(v) => update("upper", v)}
-            />
-            <Toggle
-              label="Digits"
-              hint="0123456789"
-              checked={opts.digits}
-              onChange={(v) => update("digits", v)}
-            />
-            <Toggle
-              label="Symbols"
-              hint="!@#$%^&*()-_=+[]{};:,.<>/?~"
-              checked={opts.symbols}
-              onChange={(v) => update("symbols", v)}
-            />
-          </div>
-        </section>
-
-        {/* Rules */}
-        <section data-reveal-scroll className="brutal-card-sm p-5 sm:p-6 mt-6">
-          <div className="font-mono text-xs uppercase tracking-widest mb-4">03 / Rules</div>
-          <div className="space-y-3">
-            <Toggle
-              label="Exclude ambiguous"
-              hint={`Remove look-alikes: ${AMBIGUOUS}`}
-              checked={opts.excludeAmbiguous}
-              onChange={(v) => update("excludeAmbiguous", v)}
-            />
-            <Toggle
-              label="No repeating characters"
-              hint="Each character appears at most once"
-              checked={opts.noRepeats}
-              onChange={(v) => update("noRepeats", v)}
-            />
-          </div>
-          <div className="grid sm:grid-cols-2 gap-3 mt-4">
-            <div>
-              <label className="font-mono text-[10px] uppercase tracking-widest block mb-1">
-                Extra characters to include
-              </label>
-              <input
-                type="text"
-                value={opts.custom}
-                onChange={(e) => update("custom", e.target.value)}
-                placeholder="e.g. €£¥"
-                className="w-full border-2 border-ink bg-paper px-3 py-2 font-mono text-sm focus:outline-none focus:bg-[var(--accent-lime)]"
-              />
+            {/* Strength meter */}
+            <div className="mt-3 pt-3 border-t-2 border-ink">
+              <div className="flex justify-between font-mono text-[10px] uppercase tracking-widest mb-2">
+                <span>Strength · {strength.label}</span>
+                <span>
+                  {bits} bits · pool {alphabetSize}
+                </span>
+              </div>
+              <div className="h-3 border-2 border-ink overflow-hidden bg-paper">
+                <div
+                  className="h-full transition-all duration-500 ease-out"
+                  style={{ width: `${strength.pct}%`, background: strength.color }}
+                />
+              </div>
             </div>
-            <div>
-              <label className="font-mono text-[10px] uppercase tracking-widest block mb-1">
-                Characters to exclude
-              </label>
+          </section>
+
+          {/* Basics: length + charsets side-by-side */}
+          <section data-reveal className="grid lg:grid-cols-2 gap-4 flex-1">
+            {/* Length */}
+            <div className="brutal-card-sm p-4 sm:p-5">
+              <div className="font-mono text-xs uppercase tracking-widest mb-3 flex justify-between">
+                <span>01 / Length</span>
+                <span>{opts.length}</span>
+              </div>
               <input
-                type="text"
-                value={opts.exclude}
-                onChange={(e) => update("exclude", e.target.value)}
-                placeholder="e.g. <>&"
-                className="w-full border-2 border-ink bg-paper px-3 py-2 font-mono text-sm focus:outline-none focus:bg-[var(--accent-lime)]"
+                type="range"
+                min={4}
+                max={128}
+                value={opts.length}
+                onChange={(e) => update("length", parseInt(e.target.value))}
+                className="w-full accent-[var(--accent-lime)]"
               />
+              <div className="flex flex-wrap gap-2 mt-3">
+                {[8, 12, 16, 20, 32, 64].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => update("length", n)}
+                    className={`font-mono text-xs border-2 border-ink px-2.5 py-1 ${
+                      opts.length === n ? "bg-ink text-paper" : "hover:bg-[var(--accent-lime)]"
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
 
-        {/* Bulk count */}
-        <section data-reveal-scroll className="brutal-card-sm p-5 sm:p-6 mt-6">
-          <div className="font-mono text-xs uppercase tracking-widest mb-3 flex justify-between">
-            <span>04 / Bulk count</span>
-            <span>{opts.count}</span>
-          </div>
-          <input
-            type="range"
-            min={1}
-            max={50}
-            value={opts.count}
-            onChange={(e) => update("count", parseInt(e.target.value))}
-            className="w-full accent-[var(--accent-lime)]"
-          />
-          <div className="font-mono text-[10px] text-ink/50 mt-2">
-            Generate up to 50 at once. Re-roll any time.
-          </div>
-        </section>
+            {/* Character sets */}
+            <div className="brutal-card-sm p-4 sm:p-5">
+              <div className="font-mono text-xs uppercase tracking-widest mb-3">
+                02 / Character sets
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Toggle
+                  label="a-z"
+                  checked={opts.lower}
+                  onChange={(v) => update("lower", v)}
+                />
+                <Toggle
+                  label="A-Z"
+                  checked={opts.upper}
+                  onChange={(v) => update("upper", v)}
+                />
+                <Toggle
+                  label="0-9"
+                  checked={opts.digits}
+                  onChange={(v) => update("digits", v)}
+                />
+                <Toggle
+                  label="!@#$"
+                  checked={opts.symbols}
+                  onChange={(v) => update("symbols", v)}
+                />
+              </div>
+            </div>
+          </section>
 
-        {/* Footer */}
-        <footer
-          data-reveal-scroll
-          className="mt-12 brutal-card-sm p-5"
-          style={{ background: "var(--ink)", color: "var(--paper)" }}
-        >
-          <div className="font-mono text-xs uppercase tracking-widest mb-1">⚙ How it works</div>
-          <div className="font-mono text-xs leading-relaxed">
-            Random bytes come from <code>window.crypto.getRandomValues</code> — the browser's
-            cryptographically secure RNG — with rejection sampling for a uniform distribution.
-            Nothing is sent over the network. Close the tab and the passwords are gone.
+          {/* Advanced toggle — anchored at bottom of fold */}
+          <button
+            onClick={() => setShowAdvanced((v) => !v)}
+            className="brutal-card-sm py-3 px-4 font-display font-bold text-sm uppercase tracking-tight flex items-center justify-between hover:bg-[var(--accent-lime)] transition-colors"
+            data-reveal
+            aria-expanded={showAdvanced}
+          >
+            <span>{showAdvanced ? "Hide" : "Show"} advanced settings</span>
+            <span
+              className="font-mono text-base transition-transform"
+              style={{ transform: showAdvanced ? "rotate(180deg)" : "none" }}
+            >
+              ▾
+            </span>
+          </button>
+        </div>
+
+        {/* Advanced (collapsible) */}
+        {showAdvanced && (
+          <div className="mt-6 space-y-6 animate-fade-in">
+            {/* Rules */}
+            <section className="brutal-card-sm p-5 sm:p-6">
+              <div className="font-mono text-xs uppercase tracking-widest mb-4">03 / Rules</div>
+              <div className="space-y-3">
+                <Toggle
+                  label="Exclude ambiguous"
+                  hint={`Remove look-alikes: ${AMBIGUOUS}`}
+                  checked={opts.excludeAmbiguous}
+                  onChange={(v) => update("excludeAmbiguous", v)}
+                />
+                <Toggle
+                  label="No repeating characters"
+                  hint="Each character appears at most once"
+                  checked={opts.noRepeats}
+                  onChange={(v) => update("noRepeats", v)}
+                />
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3 mt-4">
+                <div>
+                  <label className="font-mono text-[10px] uppercase tracking-widest block mb-1">
+                    Extra characters to include
+                  </label>
+                  <input
+                    type="text"
+                    value={opts.custom}
+                    onChange={(e) => update("custom", e.target.value)}
+                    placeholder="e.g. €£¥"
+                    className="w-full border-2 border-ink bg-paper px-3 py-2 font-mono text-sm focus:outline-none focus:bg-[var(--accent-lime)]"
+                  />
+                </div>
+                <div>
+                  <label className="font-mono text-[10px] uppercase tracking-widest block mb-1">
+                    Characters to exclude
+                  </label>
+                  <input
+                    type="text"
+                    value={opts.exclude}
+                    onChange={(e) => update("exclude", e.target.value)}
+                    placeholder="e.g. <>&"
+                    className="w-full border-2 border-ink bg-paper px-3 py-2 font-mono text-sm focus:outline-none focus:bg-[var(--accent-lime)]"
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Bulk count */}
+            <section className="brutal-card-sm p-5 sm:p-6">
+              <div className="font-mono text-xs uppercase tracking-widest mb-3 flex justify-between">
+                <span>04 / Bulk count</span>
+                <span>{opts.count}</span>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={50}
+                value={opts.count}
+                onChange={(e) => update("count", parseInt(e.target.value))}
+                className="w-full accent-[var(--accent-lime)]"
+              />
+              <div className="font-mono text-[10px] text-ink/50 mt-2">
+                Generate up to 50 at once. Re-roll any time.
+              </div>
+            </section>
+
+            {/* Footer */}
+            <footer
+              className="brutal-card-sm p-5"
+              style={{ background: "var(--ink)", color: "var(--paper)" }}
+            >
+              <div className="font-mono text-xs uppercase tracking-widest mb-1">
+                ⚙ How it works
+              </div>
+              <div className="font-mono text-xs leading-relaxed">
+                Random bytes come from <code>window.crypto.getRandomValues</code> — the browser's
+                cryptographically secure RNG — with rejection sampling for a uniform distribution.
+                Nothing is sent over the network. Close the tab and the passwords are gone.
+              </div>
+            </footer>
           </div>
-        </footer>
+        )}
       </div>
     </main>
   );
