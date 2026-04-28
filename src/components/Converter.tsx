@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import JSZip from "jszip";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
@@ -6,7 +6,9 @@ import {
   convertImage,
   FORMAT_META,
   formatBytes,
+  gatherDebug,
   isNonRetryableConversionError,
+  type FileDebugInfo,
   type OutputFormat,
 } from "@/lib/imageConvert";
 
@@ -25,6 +27,8 @@ interface Item {
   outPath?: string; // full path for zip output (e.g. "photos/2024/img.jpg")
   outSize?: number;
   error?: string;
+  debug?: FileDebugInfo;
+  decoderError?: string; // raw decoder error message (last attempt)
 }
 
 type ZipStage = "reading" | "scanning" | "extracting" | "done" | "error";
