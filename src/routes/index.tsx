@@ -63,16 +63,20 @@ function Landing() {
     <main className="min-h-[100dvh]">
       <div className="mx-auto flex min-h-[100dvh] max-w-6xl flex-col px-4 py-3 sm:px-6 sm:py-5">
         {/* Top bar */}
-        <header className="flex shrink-0 items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
+        <header className="flex shrink-0 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <div
-              className="brutal-card-sm flex h-8 w-8 items-center justify-center font-mono text-[10px] font-bold sm:h-10 sm:w-10 sm:text-sm"
+              className="brutal-card-sm flex h-8 w-8 shrink-0 items-center justify-center font-mono text-[10px] font-bold sm:h-10 sm:w-10 sm:text-sm"
               style={{ background: "var(--accent-lime)" }}
             >
               T/S
             </div>
-            <span className="font-mono text-[10px] uppercase tracking-widest sm:text-sm">
+            <span className="truncate font-mono text-[10px] uppercase tracking-widest sm:text-sm">
               toolshed.local
+            </span>
+            <span className="hidden items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-[var(--ink)]/60 sm:flex sm:text-xs">
+              <span className="h-3 w-3 border-2 border-[var(--ink)] bg-[var(--accent-lime)]" />
+              v1.0 / Browser-native / No upload
             </span>
           </div>
           <ThemeToggle />
