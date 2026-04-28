@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BrokenScreen } from "@/components/BrokenScreen";
+import { useKonamiBreak } from "@/hooks/useKonamiBreak";
 import { usePageEnter, useScrollReveal } from "@/lib/animations";
 
 export const Route = createFileRoute("/")({
@@ -124,6 +126,7 @@ function Landing() {
   const heroRef = usePageEnter<HTMLDivElement>();
   const gridRef = useScrollReveal<HTMLDivElement>();
   const [cookieDismissed, setCookieDismissed] = useState(false);
+  const { broken, reset } = useKonamiBreak();
 
   return (
     <main className="min-h-[100dvh]">
@@ -274,6 +277,7 @@ function Landing() {
           </span>
         </footer>
       </div>
+      {broken && <BrokenScreen onReset={reset} />}
     </main>
   );
 }
