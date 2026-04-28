@@ -1,4 +1,4 @@
-import heic2any from "heic2any";
+// heic2any is loaded lazily inside fileToBitmap to avoid SSR (window is not defined)
 
 export type OutputFormat = "jpeg" | "png" | "webp";
 
@@ -24,6 +24,7 @@ function isHeic(file: File) {
 async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: number; height: number }> {
   let blob: Blob = file;
   if (isHeic(file)) {
+    const { default: heic2any } = await import("heic2any");
     const out = await heic2any({ blob: file, toType: "image/png" });
     blob = Array.isArray(out) ? out[0] : out;
   }
