@@ -369,15 +369,15 @@ export function Converter() {
           ref={inputRef}
           type="file"
           multiple
-          accept={ACCEPTED_INPUT}
+          accept={`${ACCEPTED_INPUT},.zip,application/zip,application/x-zip-compressed`}
           className="hidden"
           onChange={(e) => e.target.files && addFiles(e.target.files)}
         />
         <div className="font-display text-3xl font-bold mb-2">
-          {dragOver ? "DROP IT" : "DRAG FILES HERE"}
+          {dragOver ? "DROP IT" : "DRAG FILES OR .ZIP HERE"}
         </div>
         <div className="font-mono text-xs uppercase tracking-widest text-ink/60">
-          or click to browse · multiple files supported
+          or click to browse · images + zip archives supported
         </div>
       </div>
 
