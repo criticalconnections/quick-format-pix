@@ -62,9 +62,16 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --radius: 0.25rem;
+  --background: oklch(0.98 0.005 100);
+  --foreground: oklch(0.15 0.01 100);
+  --accent-lime: oklch(0.88 0.22 125);
+  --accent-lime-foreground: oklch(0.15 0.01 100);
+  --ink: oklch(0.15 0.01 100);
+  --paper: oklch(0.98 0.005 100);
+  --shadow-brutal: 6px 6px 0 0 var(--ink);
+  --shadow-brutal-sm: 3px 3px 0 0 var(--ink);
+  --gradient-lime: linear-gradient(135deg, oklch(0.88 0.22 125), oklch(0.82 0.2 145));
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
@@ -141,4 +148,47 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+}
+
+@theme inline {
+  --color-accent-lime: var(--accent-lime);
+  --color-accent-lime-foreground: var(--accent-lime-foreground);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --shadow-brutal: var(--shadow-brutal);
+  --shadow-brutal-sm: var(--shadow-brutal-sm);
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+body {
+  font-family: var(--font-display);
+  background-image:
+    linear-gradient(var(--ink) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ink) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: -1px -1px;
+  background-color: var(--paper);
+  background-blend-mode: normal;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: var(--paper);
+  opacity: 0.96;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.brutal-card {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-brutal);
+}
+.brutal-card-sm {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-brutal-sm);
 }
