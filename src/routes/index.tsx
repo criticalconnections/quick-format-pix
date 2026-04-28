@@ -100,8 +100,11 @@ function Landing() {
               BIG ATTITUDE.
             </span>
           </h1>
-          <p className="mt-2 max-w-2xl font-display text-xs leading-snug sm:mt-3 sm:text-base">
-            Dumb-simple things your browser can do without phoning home.
+          <p className="mt-2 max-w-3xl font-display text-xs leading-snug sm:mt-3 sm:text-sm md:text-base">
+            Because every "free online converter" wants your email, your
+            firstborn, and a Pro subscription before it'll touch your photo of a
+            sandwich. These run entirely in your browser. No uploads. No
+            sign-ups. No 14-day trials that quietly renew at $79/mo.
           </p>
         </section>
 
