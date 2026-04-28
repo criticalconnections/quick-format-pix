@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { usePageEnter, useScrollReveal } from "@/lib/animations";
 import {
   bestForeground,
   buildPalettes,
@@ -96,11 +97,18 @@ function ColorsPage() {
     }
   };
 
+  const pageRef = usePageEnter<HTMLElement>();
+  const revealRoot = useScrollReveal<HTMLDivElement>("[data-reveal-scroll]", [
+    swatches.length,
+    palettes.length,
+    activeSeedHex,
+  ]);
+
   return (
-    <main className="min-h-screen">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-12">
+    <main ref={pageRef} className="min-h-screen">
+      <div ref={revealRoot} className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-12">
         {/* Header */}
-        <header className="mb-8 sm:mb-10">
+        <header className="mb-8 sm:mb-10" data-reveal>
           <div className="flex items-center justify-between mb-4 gap-3">
             <Link
               to="/"
