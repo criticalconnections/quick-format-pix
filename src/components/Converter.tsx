@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import JSZip from "jszip";
 import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { usePageEnter, useScrollReveal } from "@/lib/animations";
 import {
   ACCEPTED_INPUT,
   convertImage,
@@ -384,10 +385,17 @@ export function Converter() {
   };
   const dismissZip = (id: string) => setZipJobs((prev) => prev.filter((z) => z.id !== id));
 
+  const pageRef = usePageEnter<HTMLDivElement>();
+  const revealRoot = useScrollReveal<HTMLDivElement>("[data-reveal-scroll]", [
+    items.length,
+    zipJobs.length,
+  ]);
+
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-12">
+    <div ref={pageRef}>
+      <div ref={revealRoot} className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-12">
       {/* Header */}
-      <header className="mb-8 sm:mb-10">
+      <header className="mb-8 sm:mb-10" data-reveal>
         <div className="flex items-center justify-between mb-4 gap-3">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className="h-3 w-3 shrink-0 bg-[var(--accent-lime)] border-2 border-ink" />
@@ -420,6 +428,7 @@ export function Converter() {
 
       {/* Dropzone */}
       <div
+        data-reveal
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -451,7 +460,7 @@ export function Converter() {
       </div>
 
       {/* Controls */}
-      <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
+      <div data-reveal className="grid md:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
         <div className="brutal-card-sm p-5 sm:p-6">
           <div className="font-mono text-xs uppercase tracking-widest mb-3">01 / Output format</div>
           <div className="flex gap-2">
@@ -491,7 +500,7 @@ export function Converter() {
 
       {/* Action bar + overall progress */}
       {items.length > 0 && (
-        <div className="mt-6 sm:mt-8 space-y-4">
+        <div data-reveal-scroll className="mt-6 sm:mt-8 space-y-4">
           <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:items-center sm:justify-between">
             <div className="font-mono text-xs uppercase tracking-widest">
               {stats.done}/{stats.total} done
@@ -792,6 +801,7 @@ export function Converter() {
           JPG/PNG/WEBP freely. For PNG/JPG → HEIC, you'd need a native app.
         </div>
       </footer>
+      </div>
     </div>
   );
 }

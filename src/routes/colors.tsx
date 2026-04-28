@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { usePageEnter, useScrollReveal } from "@/lib/animations";
 import {
   bestForeground,
   buildPalettes,
@@ -96,11 +97,18 @@ function ColorsPage() {
     }
   };
 
+  const pageRef = usePageEnter<HTMLElement>();
+  const revealRoot = useScrollReveal<HTMLDivElement>("[data-reveal-scroll]", [
+    swatches.length,
+    palettes.length,
+    activeSeedHex,
+  ]);
+
   return (
-    <main className="min-h-screen">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-12">
+    <main ref={pageRef} className="min-h-screen">
+      <div ref={revealRoot} className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-12">
         {/* Header */}
-        <header className="mb-8 sm:mb-10">
+        <header className="mb-8 sm:mb-10" data-reveal>
           <div className="flex items-center justify-between mb-4 gap-3">
             <Link
               to="/"
@@ -125,6 +133,7 @@ function ColorsPage() {
 
         {/* Dropzone */}
         <div
+          data-reveal
           onDragOver={(e) => {
             e.preventDefault();
             setDragOver(true);
@@ -166,7 +175,7 @@ function ColorsPage() {
 
         {/* Image preview + swatch count */}
         {imageUrl && (
-          <div className="grid md:grid-cols-[1fr_auto] gap-4 mt-8 items-start">
+          <div data-reveal-scroll className="grid md:grid-cols-[1fr_auto] gap-4 mt-8 items-start">
             <div className="brutal-card-sm p-2">
               <img
                 src={imageUrl}
@@ -200,7 +209,7 @@ function ColorsPage() {
 
         {/* Swatches */}
         {swatches.length > 0 && (
-          <section className="mt-10">
+          <section className="mt-10" data-reveal-scroll>
             <div className="flex items-baseline justify-between mb-4">
               <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">
                 01 / Dominant swatches
@@ -211,12 +220,13 @@ function ColorsPage() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {swatches.map((s) => (
-                <SwatchCard
-                  key={s.hex}
-                  swatch={s}
-                  active={s.hex === activeSeedHex}
-                  onClick={() => onSwatchClick(s)}
-                />
+                <div key={s.hex} data-reveal-scroll>
+                  <SwatchCard
+                    swatch={s}
+                    active={s.hex === activeSeedHex}
+                    onClick={() => onSwatchClick(s)}
+                  />
+                </div>
               ))}
             </div>
           </section>
@@ -224,7 +234,7 @@ function ColorsPage() {
 
         {/* Palettes */}
         {palettes.length > 0 && (
-          <section className="mt-12">
+          <section className="mt-12" data-reveal-scroll>
             <div className="flex items-baseline justify-between mb-4 flex-wrap gap-2">
               <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">
                 02 / Brand palettes
@@ -237,7 +247,11 @@ function ColorsPage() {
               {SCHEME_ORDER.map((scheme) => {
                 const p = palettes.find((x) => x.scheme === scheme);
                 if (!p) return null;
-                return <PaletteCard key={scheme} palette={p} />;
+                return (
+                  <div key={scheme} data-reveal-scroll>
+                    <PaletteCard palette={p} />
+                  </div>
+                );
               })}
             </div>
           </section>
@@ -245,6 +259,7 @@ function ColorsPage() {
 
         {/* Footer */}
         <footer
+          data-reveal-scroll
           className="mt-16 brutal-card-sm p-5"
           style={{ background: "var(--ink)", color: "var(--paper)" }}
         >
