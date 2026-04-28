@@ -15,11 +15,21 @@ interface Item {
   id: string;
   file: File;
   status: Status;
+  progress: number; // 0-100
+  attempts: number;
   outBlob?: Blob;
   outName?: string;
   outSize?: number;
   error?: string;
 }
+
+const MAX_AUTO_RETRIES = 2;
+const STATUS_LABEL: Record<Status, string> = {
+  queued: "Queued",
+  converting: "Converting",
+  done: "Done",
+  error: "Failed",
+};
 
 const FORMATS: OutputFormat[] = ["jpeg", "png", "webp"];
 
@@ -33,9 +43,14 @@ export function Converter() {
 
   const stats = useMemo(() => {
     const done = items.filter((i) => i.status === "done").length;
+    const failed = items.filter((i) => i.status === "error").length;
     const totalIn = items.reduce((a, b) => a + b.file.size, 0);
     const totalOut = items.reduce((a, b) => a + (b.outSize || 0), 0);
-    return { done, total: items.length, totalIn, totalOut };
+    const overall =
+      items.length === 0
+        ? 0
+        : Math.round(items.reduce((a, b) => a + b.progress, 0) / items.length);
+    return { done, failed, total: items.length, totalIn, totalOut, overall };
   }, [items]);
 
   const addFiles = useCallback((files: FileList | File[]) => {
@@ -48,6 +63,8 @@ export function Converter() {
         id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 7)}`,
         file,
         status: "queued" as Status,
+        progress: 0,
+        attempts: 0,
       })),
     ]);
   }, []);
