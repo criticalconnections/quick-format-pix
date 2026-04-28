@@ -238,14 +238,19 @@ export function Converter() {
       }, 150);
 
       try {
-        const file = items.find((i) => i.id === id)?.file ?? current.file;
+        const it = items.find((i) => i.id === id) ?? current;
+        const file = it.file;
         const { blob, name } = await convertImage(file, format, q);
         clearInterval(ticker);
+        // If item came from a zip, preserve its folder path for export.
+        const dir = it.path ? it.path.replace(/[^/]*$/, "") : "";
+        const outPath = dir ? `${dir}${name}` : name;
         updateItem(id, {
           status: "done",
           progress: 100,
           outBlob: blob,
           outName: name,
+          outPath,
           outSize: blob.size,
           error: undefined,
         });
