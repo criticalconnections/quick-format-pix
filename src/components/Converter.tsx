@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import JSZip from "jszip";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
@@ -182,7 +182,7 @@ export function Converter() {
     }
   };
 
-  const addFiles = useCallback((files: FileList | File[]) => {
+  const addFiles = (files: FileList | File[]) => {
     const arr = Array.from(files);
     const zips = arr.filter(isZipFile);
     const images = arr.filter((f) => !isZipFile(f) && isImageFile(f));
@@ -190,7 +190,7 @@ export function Converter() {
     zips.forEach((z) => {
       void processZip(z);
     });
-  }, []);
+  };
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
