@@ -9,11 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StripRouteImport } from './routes/strip'
+import { Route as QrRouteImport } from './routes/qr'
 import { Route as PasswordsRouteImport } from './routes/passwords'
 import { Route as ImgconvertRouteImport } from './routes/imgconvert'
+import { Route as FaviconRouteImport } from './routes/favicon'
+import { Route as CompressRouteImport } from './routes/compress'
 import { Route as ColorsRouteImport } from './routes/colors'
+import { Route as Base64RouteImport } from './routes/base64'
 import { Route as IndexRouteImport } from './routes/index'
 
+const StripRoute = StripRouteImport.update({
+  id: '/strip',
+  path: '/strip',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QrRoute = QrRouteImport.update({
+  id: '/qr',
+  path: '/qr',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PasswordsRoute = PasswordsRouteImport.update({
   id: '/passwords',
   path: '/passwords',
@@ -24,9 +39,24 @@ const ImgconvertRoute = ImgconvertRouteImport.update({
   path: '/imgconvert',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FaviconRoute = FaviconRouteImport.update({
+  id: '/favicon',
+  path: '/favicon',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompressRoute = CompressRouteImport.update({
+  id: '/compress',
+  path: '/compress',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ColorsRoute = ColorsRouteImport.update({
   id: '/colors',
   path: '/colors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Base64Route = Base64RouteImport.update({
+  id: '/base64',
+  path: '/base64',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,40 +67,102 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/base64': typeof Base64Route
   '/colors': typeof ColorsRoute
+  '/compress': typeof CompressRoute
+  '/favicon': typeof FaviconRoute
   '/imgconvert': typeof ImgconvertRoute
   '/passwords': typeof PasswordsRoute
+  '/qr': typeof QrRoute
+  '/strip': typeof StripRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/base64': typeof Base64Route
   '/colors': typeof ColorsRoute
+  '/compress': typeof CompressRoute
+  '/favicon': typeof FaviconRoute
   '/imgconvert': typeof ImgconvertRoute
   '/passwords': typeof PasswordsRoute
+  '/qr': typeof QrRoute
+  '/strip': typeof StripRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/base64': typeof Base64Route
   '/colors': typeof ColorsRoute
+  '/compress': typeof CompressRoute
+  '/favicon': typeof FaviconRoute
   '/imgconvert': typeof ImgconvertRoute
   '/passwords': typeof PasswordsRoute
+  '/qr': typeof QrRoute
+  '/strip': typeof StripRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/colors' | '/imgconvert' | '/passwords'
+  fullPaths:
+    | '/'
+    | '/base64'
+    | '/colors'
+    | '/compress'
+    | '/favicon'
+    | '/imgconvert'
+    | '/passwords'
+    | '/qr'
+    | '/strip'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/colors' | '/imgconvert' | '/passwords'
-  id: '__root__' | '/' | '/colors' | '/imgconvert' | '/passwords'
+  to:
+    | '/'
+    | '/base64'
+    | '/colors'
+    | '/compress'
+    | '/favicon'
+    | '/imgconvert'
+    | '/passwords'
+    | '/qr'
+    | '/strip'
+  id:
+    | '__root__'
+    | '/'
+    | '/base64'
+    | '/colors'
+    | '/compress'
+    | '/favicon'
+    | '/imgconvert'
+    | '/passwords'
+    | '/qr'
+    | '/strip'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  Base64Route: typeof Base64Route
   ColorsRoute: typeof ColorsRoute
+  CompressRoute: typeof CompressRoute
+  FaviconRoute: typeof FaviconRoute
   ImgconvertRoute: typeof ImgconvertRoute
   PasswordsRoute: typeof PasswordsRoute
+  QrRoute: typeof QrRoute
+  StripRoute: typeof StripRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/strip': {
+      id: '/strip'
+      path: '/strip'
+      fullPath: '/strip'
+      preLoaderRoute: typeof StripRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/qr': {
+      id: '/qr'
+      path: '/qr'
+      fullPath: '/qr'
+      preLoaderRoute: typeof QrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/passwords': {
       id: '/passwords'
       path: '/passwords'
@@ -85,11 +177,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImgconvertRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/favicon': {
+      id: '/favicon'
+      path: '/favicon'
+      fullPath: '/favicon'
+      preLoaderRoute: typeof FaviconRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compress': {
+      id: '/compress'
+      path: '/compress'
+      fullPath: '/compress'
+      preLoaderRoute: typeof CompressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/colors': {
       id: '/colors'
       path: '/colors'
       fullPath: '/colors'
       preLoaderRoute: typeof ColorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/base64': {
+      id: '/base64'
+      path: '/base64'
+      fullPath: '/base64'
+      preLoaderRoute: typeof Base64RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -104,9 +217,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  Base64Route: Base64Route,
   ColorsRoute: ColorsRoute,
+  CompressRoute: CompressRoute,
+  FaviconRoute: FaviconRoute,
   ImgconvertRoute: ImgconvertRoute,
   PasswordsRoute: PasswordsRoute,
+  QrRoute: QrRoute,
+  StripRoute: StripRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
