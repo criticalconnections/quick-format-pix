@@ -17,9 +17,24 @@ interface Item {
   status: Status;
   progress: number; // 0-100
   attempts: number;
+  source?: string; // origin zip name
   outBlob?: Blob;
   outName?: string;
   outSize?: number;
+  error?: string;
+}
+
+type ZipStage = "reading" | "scanning" | "extracting" | "done" | "error";
+interface ZipJob {
+  id: string;
+  name: string;
+  size: number;
+  stage: ZipStage;
+  progress: number; // 0-100
+  total: number;   // image entries found
+  extracted: number;
+  skipped: number;
+  currentEntry?: string;
   error?: string;
 }
 
@@ -30,11 +45,24 @@ const STATUS_LABEL: Record<Status, string> = {
   done: "Done",
   error: "Failed",
 };
+const ZIP_STAGE_LABEL: Record<ZipStage, string> = {
+  reading: "Reading archive",
+  scanning: "Scanning entries",
+  extracting: "Extracting images",
+  done: "Extracted",
+  error: "Failed",
+};
 
 const FORMATS: OutputFormat[] = ["jpeg", "png", "webp"];
+const IMAGE_RE = /\.(heic|heif|jpe?g|png|webp|gif|bmp|tiff?|avif)$/i;
+const isImageFile = (f: { name: string; type?: string }) =>
+  /image|heic|heif/i.test(f.type || "") || IMAGE_RE.test(f.name);
+const isZipFile = (f: File) =>
+  /zip/i.test(f.type) || /\.zip$/i.test(f.name);
 
 export function Converter() {
   const [items, setItems] = useState<Item[]>([]);
+  const [zipJobs, setZipJobs] = useState<ZipJob[]>([]);
   const [format, setFormat] = useState<OutputFormat>("jpeg");
   const [quality, setQuality] = useState(92);
   const [dragOver, setDragOver] = useState(false);
@@ -53,20 +81,114 @@ export function Converter() {
     return { done, failed, total: items.length, totalIn, totalOut, overall };
   }, [items]);
 
-  const addFiles = useCallback((files: FileList | File[]) => {
-    const arr = Array.from(files).filter((f) =>
-      /image|heic|heif/i.test(f.type) || /\.(heic|heif|jpe?g|png|webp|gif|bmp|tiff|avif)$/i.test(f.name)
-    );
+  const pushItems = (files: File[], source?: string) => {
     setItems((prev) => [
       ...prev,
-      ...arr.map((file) => ({
+      ...files.map((file) => ({
         id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 7)}`,
         file,
         status: "queued" as Status,
         progress: 0,
         attempts: 0,
+        source,
       })),
     ]);
+  };
+
+  const updateZip = (id: string, patch: Partial<ZipJob>) =>
+    setZipJobs((prev) => prev.map((z) => (z.id === id ? { ...z, ...patch } : z)));
+
+  const processZip = async (file: File) => {
+    const id = `zip-${file.name}-${file.size}-${Math.random().toString(36).slice(2, 7)}`;
+    setZipJobs((prev) => [
+      ...prev,
+      {
+        id,
+        name: file.name,
+        size: file.size,
+        stage: "reading",
+        progress: 0,
+        total: 0,
+        extracted: 0,
+        skipped: 0,
+      },
+    ]);
+
+    try {
+      // 1. Read archive bytes
+      updateZip(id, { stage: "reading", progress: 5 });
+      const buf = await file.arrayBuffer();
+      updateZip(id, { progress: 15 });
+
+      // 2. Parse central directory
+      updateZip(id, { stage: "scanning", progress: 25 });
+      const zip = await JSZip.loadAsync(buf);
+
+      // 3. Filter image entries
+      const entries = Object.values(zip.files).filter(
+        (e) => !e.dir && isImageFile({ name: e.name }),
+      );
+      const skipped = Object.values(zip.files).filter(
+        (e) => !e.dir && !isImageFile({ name: e.name }),
+      ).length;
+      updateZip(id, {
+        stage: "extracting",
+        progress: 30,
+        total: entries.length,
+        skipped,
+      });
+
+      if (entries.length === 0) {
+        updateZip(id, {
+          stage: "done",
+          progress: 100,
+          error: "No images found in archive",
+        });
+        return;
+      }
+
+      // 4. Extract entries one by one with live progress
+      const extracted: File[] = [];
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        const shortName = entry.name.split("/").pop() || entry.name;
+        updateZip(id, { currentEntry: shortName });
+
+        const blob = await entry.async("blob");
+        const f = new File([blob], shortName, {
+          type: blob.type || "application/octet-stream",
+        });
+        extracted.push(f);
+
+        const pct = 30 + Math.round(((i + 1) / entries.length) * 65);
+        updateZip(id, { extracted: i + 1, progress: pct });
+        // Yield so UI repaints between entries
+        await new Promise((r) => setTimeout(r, 0));
+      }
+
+      // 5. Push to convert queue
+      pushItems(extracted, file.name);
+      updateZip(id, {
+        stage: "done",
+        progress: 100,
+        currentEntry: undefined,
+      });
+    } catch (err) {
+      updateZip(id, {
+        stage: "error",
+        error: (err as Error).message || "Failed to read archive",
+      });
+    }
+  };
+
+  const addFiles = useCallback((files: FileList | File[]) => {
+    const arr = Array.from(files);
+    const zips = arr.filter(isZipFile);
+    const images = arr.filter((f) => !isZipFile(f) && isImageFile(f));
+    if (images.length) pushItems(images);
+    zips.forEach((z) => {
+      void processZip(z);
+    });
   }, []);
 
   const onDrop = (e: React.DragEvent) => {
@@ -195,7 +317,12 @@ export function Converter() {
 
   const removeItem = (id: string) =>
     setItems((prev) => prev.filter((p) => p.id !== id));
-  const clearAll = () => setItems([]);
+  const clearAll = () => {
+    setItems([]);
+    setZipJobs([]);
+  };
+  const dismissZip = (id: string) =>
+    setZipJobs((prev) => prev.filter((z) => z.id !== id));
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-12">
@@ -242,15 +369,15 @@ export function Converter() {
           ref={inputRef}
           type="file"
           multiple
-          accept={ACCEPTED_INPUT}
+          accept={`${ACCEPTED_INPUT},.zip,application/zip,application/x-zip-compressed`}
           className="hidden"
           onChange={(e) => e.target.files && addFiles(e.target.files)}
         />
         <div className="font-display text-3xl font-bold mb-2">
-          {dragOver ? "DROP IT" : "DRAG FILES HERE"}
+          {dragOver ? "DROP IT" : "DRAG FILES OR .ZIP HERE"}
         </div>
         <div className="font-mono text-xs uppercase tracking-widest text-ink/60">
-          or click to browse · multiple files supported
+          or click to browse · images + zip archives supported
         </div>
       </div>
 
@@ -359,6 +486,80 @@ export function Converter() {
         </div>
       )}
 
+      {/* Zip jobs panel */}
+      {zipJobs.length > 0 && (
+        <div className="mt-8">
+          <div className="font-mono text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
+            <span className="inline-block h-2 w-2 bg-[var(--accent-lime)] border border-ink" />
+            Archives ({zipJobs.length})
+          </div>
+          <ul className="space-y-2">
+            {zipJobs.map((z) => (
+              <li
+                key={z.id}
+                className="brutal-card-sm p-4"
+                style={{
+                  background:
+                    z.stage === "done"
+                      ? "color-mix(in oklch, var(--accent-lime) 25%, var(--paper))"
+                      : z.stage === "error"
+                      ? "color-mix(in oklch, var(--destructive) 18%, var(--paper))"
+                      : "var(--paper)",
+                }}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`h-10 w-10 shrink-0 flex items-center justify-center font-mono text-xs font-bold border-2 border-ink ${
+                      z.stage === "done"
+                        ? "bg-[var(--accent-lime)]"
+                        : z.stage === "error"
+                        ? "bg-destructive text-destructive-foreground"
+                        : "bg-ink text-paper animate-pulse"
+                    }`}
+                  >
+                    {z.stage === "done" ? "✓" : z.stage === "error" ? "!" : "ZIP"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <div className="font-mono text-sm truncate font-bold">
+                        {z.name}
+                      </div>
+                      <div className="font-mono text-[10px] uppercase tracking-widest shrink-0 text-ink/60">
+                        {ZIP_STAGE_LABEL[z.stage]}
+                      </div>
+                    </div>
+                    <div className="font-mono text-xs text-ink/60 mt-0.5 truncate">
+                      {formatBytes(z.size)}
+                      {z.total > 0 &&
+                        ` · ${z.extracted}/${z.total} images`}
+                      {z.skipped > 0 && ` · ${z.skipped} skipped`}
+                      {z.currentEntry && ` · ${z.currentEntry}`}
+                      {z.error && ` · ${z.error}`}
+                    </div>
+                  </div>
+                  {(z.stage === "done" || z.stage === "error") && (
+                    <button
+                      onClick={() => dismissZip(z.id)}
+                      className="px-3 py-1 font-mono text-xs border-2 border-ink hover:bg-ink hover:text-paper"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+                <div className="mt-3 h-1.5 border border-ink bg-paper overflow-hidden">
+                  <div
+                    className={`h-full transition-[width] duration-150 ease-out ${
+                      z.stage === "error" ? "bg-destructive" : "bg-[var(--accent-lime)]"
+                    }`}
+                    style={{ width: `${z.progress}%` }}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* File list */}
       {items.length > 0 && (
         <ul className="mt-6 space-y-2">
@@ -395,6 +596,7 @@ export function Converter() {
                   <div className="font-mono text-xs text-ink/50 mt-0.5 truncate">
                     {formatBytes(item.file.size)}
                     {item.outSize ? ` → ${formatBytes(item.outSize)}` : ""}
+                    {item.source ? ` · from ${item.source}` : ""}
                     {item.error ? ` · ${item.error}` : ""}
                   </div>
                 </div>
