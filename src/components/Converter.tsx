@@ -18,8 +18,10 @@ interface Item {
   progress: number; // 0-100
   attempts: number;
   source?: string; // origin zip name
+  path?: string;   // original path inside source zip (e.g. "photos/2024/img.heic")
   outBlob?: Blob;
-  outName?: string;
+  outName?: string; // basename only (e.g. "img.jpg")
+  outPath?: string; // full path for zip output (e.g. "photos/2024/img.jpg")
   outSize?: number;
   error?: string;
 }
@@ -81,16 +83,20 @@ export function Converter() {
     return { done, failed, total: items.length, totalIn, totalOut, overall };
   }, [items]);
 
-  const pushItems = (files: File[], source?: string) => {
+  const pushItems = (
+    entries: { file: File; path?: string }[],
+    source?: string,
+  ) => {
     setItems((prev) => [
       ...prev,
-      ...files.map((file) => ({
+      ...entries.map(({ file, path }) => ({
         id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 7)}`,
         file,
         status: "queued" as Status,
         progress: 0,
         attempts: 0,
         source,
+        path,
       })),
     ]);
   };
@@ -148,7 +154,7 @@ export function Converter() {
       }
 
       // 4. Extract entries one by one with live progress
-      const extracted: File[] = [];
+      const extracted: { file: File; path: string }[] = [];
       for (let i = 0; i < entries.length; i++) {
         const entry = entries[i];
         const shortName = entry.name.split("/").pop() || entry.name;
@@ -158,7 +164,7 @@ export function Converter() {
         const f = new File([blob], shortName, {
           type: blob.type || "application/octet-stream",
         });
-        extracted.push(f);
+        extracted.push({ file: f, path: entry.name });
 
         const pct = 30 + Math.round(((i + 1) / entries.length) * 65);
         updateZip(id, { extracted: i + 1, progress: pct });
@@ -185,7 +191,7 @@ export function Converter() {
     const arr = Array.from(files);
     const zips = arr.filter(isZipFile);
     const images = arr.filter((f) => !isZipFile(f) && isImageFile(f));
-    if (images.length) pushItems(images);
+    if (images.length) pushItems(images.map((file) => ({ file })));
     zips.forEach((z) => {
       void processZip(z);
     });
@@ -232,14 +238,19 @@ export function Converter() {
       }, 150);
 
       try {
-        const file = items.find((i) => i.id === id)?.file ?? current.file;
+        const it = items.find((i) => i.id === id) ?? current;
+        const file = it.file;
         const { blob, name } = await convertImage(file, format, q);
         clearInterval(ticker);
+        // If item came from a zip, preserve its folder path for export.
+        const dir = it.path ? it.path.replace(/[^/]*$/, "") : "";
+        const outPath = dir ? `${dir}${name}` : name;
         updateItem(id, {
           status: "done",
           progress: 100,
           outBlob: blob,
           outName: name,
+          outPath,
           outSize: blob.size,
           error: undefined,
         });
@@ -303,8 +314,22 @@ export function Converter() {
 
   const downloadZip = async () => {
     const zip = new JSZip();
+    // Avoid path collisions across archives by namespacing zip-sourced files
+    // under a folder named after their origin archive (without .zip).
+    const seen = new Set<string>();
     items.forEach((i) => {
-      if (i.outBlob && i.outName) zip.file(i.outName, i.outBlob);
+      if (!i.outBlob || !i.outName) return;
+      const sourceFolder = i.source ? i.source.replace(/\.zip$/i, "") + "/" : "";
+      let path = sourceFolder + (i.outPath || i.outName);
+      // Dedupe in case two items resolve to the same path
+      let n = 1;
+      const base = path.replace(/(\.[^.]+)?$/, "");
+      const ext = path.slice(base.length);
+      while (seen.has(path)) {
+        path = `${base} (${++n})${ext}`;
+      }
+      seen.add(path);
+      zip.file(path, i.outBlob);
     });
     const blob = await zip.generateAsync({ type: "blob" });
     const url = URL.createObjectURL(blob);
