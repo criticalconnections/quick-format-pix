@@ -1,4 +1,6 @@
-// heic2any is loaded lazily inside fileToBitmap to avoid SSR (window is not defined)
+// HEIC decoders (heic-to and heic2any) are loaded lazily inside fileToBitmap
+// to avoid SSR ("window is not defined") and to keep the WASM out of the
+// initial bundle.
 
 export type OutputFormat = "jpeg" | "png" | "webp";
 
@@ -33,6 +35,22 @@ function extLooksHeic(file: File) {
 
 export function isNonRetryableConversionError(err: unknown) {
   return err instanceof ConversionError && !err.retryable;
+}
+
+// Normalize whatever shape a HEIC decoder throws into a readable string.
+// libheif-based decoders sometimes throw { code, subcode } instead of an Error.
+function formatDecoderError(err: unknown): string {
+  if (err instanceof Error && err.message) return err.message;
+  const e = err as { message?: string; code?: unknown; subcode?: unknown } | null;
+  if (e?.message) return e.message;
+  if (e && e.code !== undefined) {
+    return `libheif code ${String(e.code)}/${String(e.subcode)}`;
+  }
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return String(err);
+  }
 }
 
 // Sniff the ISO-BMFF "ftyp" box to confirm a file is actually HEIC/HEIF.
@@ -145,6 +163,28 @@ async function fileToBitmap(
   const looksHeic = extLooksHeic(file);
 
   if (isHeicMime) {
+    const errors: string[] = [];
+
+    // Decoder 1: heic-to (libheif 1.21.2 — handles modern iPhone HEIC,
+    // including 10-bit HEVC and the heix/heim/hevc brands that the old
+    // heic2any libheif build chokes on).
+    try {
+      const { heicTo } = await import("heic-to");
+      const png = (await heicTo({
+        blob: v.blob,
+        type: "image/png",
+        quality: 1,
+      })) as Blob;
+      const bitmap = await createImageBitmap(png);
+      return { bitmap, width: bitmap.width, height: bitmap.height };
+    } catch (err) {
+      const msg = formatDecoderError(err);
+      console.warn(`[heic-to] ${file.name}: ${msg}`, err);
+      errors.push(`heic-to: ${msg}`);
+    }
+
+    // Decoder 2: heic2any fallback (older libheif; sometimes succeeds on
+    // edge files that the newer build rejects).
     try {
       const { default: heic2any } = await import("heic2any");
       const out = await heic2any({ blob: v.blob, toType: "image/png" });
@@ -152,21 +192,15 @@ async function fileToBitmap(
       const bitmap = await createImageBitmap(png);
       return { bitmap, width: bitmap.width, height: bitmap.height };
     } catch (err) {
-      const e = err as { message?: string; code?: unknown; subcode?: unknown };
-      const msg =
-        e?.message ||
-        (e?.code !== undefined
-          ? `libheif code ${String(e.code)}/${String(e.subcode)}`
-          : String(err));
+      const msg = formatDecoderError(err);
       console.error(`[heic2any] ${file.name}: ${msg}`, err);
-      if (/libheif|format not supported|ERR_LIBHEIF|parse HEIF|code/i.test(msg)) {
-        throw new ConversionError(
-          "HEIC decoder couldn't parse this file. It is likely an unsupported HEIC variant such as HEVC 10-bit, HDR, ProRAW, or a Live Photo still. Export it from Photos as Most Compatible/JPEG, then convert again.",
-          false,
-        );
-      }
-      throw new ConversionError(msg);
+      errors.push(`heic2any: ${msg}`);
     }
+
+    throw new ConversionError(
+      `HEIC decoders couldn't parse this file. It is likely an unsupported HEIC variant such as HEVC 10-bit, HDR, ProRAW, or a Live Photo still. Export it from Photos as Most Compatible/JPEG, then convert again. [${errors.join(" | ")}]`,
+      false,
+    );
   }
 
   if (looksHeic && !isHeicMime) {
