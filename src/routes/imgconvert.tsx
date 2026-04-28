@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Converter } from "@/components/Converter";
 
-export const Route = createFileRoute("/heic")({
+export const Route = createFileRoute("/imgconvert")({
   head: () => ({
     meta: [
       { title: "Witness Protection for HEICs — Bulk Image Converter" },
