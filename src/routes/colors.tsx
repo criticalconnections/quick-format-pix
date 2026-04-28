@@ -4,7 +4,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   bestForeground,
   buildPalettes,
-  contrastRatio,
   extractSwatches,
   type BrandPalette,
   type PaletteScheme,
@@ -396,88 +395,69 @@ function BrandPreview({ palette }: { palette: BrandPalette }) {
   const onPrimary = bestForeground(palette.primary);
   const onAccent = bestForeground(palette.accent);
   const onPaper = bestForeground(palette.neutralLight);
-  const ratio = contrastRatio(palette.primary, palette.neutralLight);
-  const grade = ratio >= 7 ? "AAA" : ratio >= 4.5 ? "AA" : ratio >= 3 ? "AA Large" : "Fail";
-  const gradeBg =
-    ratio >= 4.5
-      ? "var(--accent-lime)"
-      : ratio >= 3
-        ? "color-mix(in oklch, var(--accent-lime) 50%, var(--paper))"
-        : "color-mix(in oklch, var(--destructive) 30%, var(--paper))";
 
   return (
     <div className="border-t-2 border-ink p-4 sm:p-6" style={{ background: palette.neutralLight, color: onPaper }}>
-      <div className="grid md:grid-cols-[1fr_auto] gap-4 items-start">
-        {/* Mock landing */}
+      {/* Mock landing */}
+      <div
+        className="p-5 sm:p-6 border-2"
+        style={{ borderColor: palette.neutralDark, background: palette.neutralLight }}
+      >
         <div
-          className="p-5 sm:p-6 border-2"
-          style={{ borderColor: palette.neutralDark, background: palette.neutralLight }}
+          className="font-mono text-[10px] uppercase tracking-widest mb-3"
+          style={{ color: palette.primary }}
         >
-          <div
-            className="font-mono text-[10px] uppercase tracking-widest mb-3"
-            style={{ color: palette.primary }}
-          >
-            ▮ Brand preview
-          </div>
-          <div
-            className="font-display text-2xl sm:text-3xl font-bold leading-tight tracking-tight"
-            style={{ color: palette.neutralDark }}
-          >
-            Headline goes here.{" "}
-            <span style={{ background: palette.accent, color: onAccent, padding: "0 6px" }}>
-              Punchline.
-            </span>
-          </div>
-          <p
-            className="font-mono text-xs mt-3 max-w-md"
-            style={{ color: palette.neutralDark, opacity: 0.75 }}
-          >
-            Body copy reads against the paper neutral. Accents call out the moments that matter.
-          </p>
-          <div className="flex flex-wrap gap-2 mt-4">
-            <span
-              className="font-display font-bold text-sm px-4 py-2 border-2"
-              style={{
-                background: palette.primary,
-                color: onPrimary,
-                borderColor: palette.neutralDark,
-              }}
-            >
-              Primary CTA
-            </span>
-            <span
-              className="font-display font-bold text-sm px-4 py-2 border-2"
-              style={{
-                background: palette.neutralLight,
-                color: palette.neutralDark,
-                borderColor: palette.neutralDark,
-              }}
-            >
-              Secondary
-            </span>
-            <span
-              className="font-mono text-xs uppercase tracking-widest px-3 py-2 border-2"
-              style={{
-                background: palette.secondary,
-                color: bestForeground(palette.secondary),
-                borderColor: palette.neutralDark,
-              }}
-            >
-              Tag
-            </span>
-          </div>
+          ▮ Brand preview
         </div>
-
-        {/* Contrast badge */}
         <div
-          className="p-4 border-2 min-w-[160px]"
-          style={{ borderColor: palette.neutralDark, background: gradeBg, color: "var(--ink)" }}
+          className="font-display text-2xl sm:text-3xl font-bold leading-tight tracking-tight"
+          style={{ color: palette.neutralDark }}
         >
-          <div className="font-mono text-[10px] uppercase tracking-widest">Primary on paper</div>
-          <div className="font-display text-3xl font-bold mt-1">{grade}</div>
-          <div className="font-mono text-xs mt-1">{ratio.toFixed(2)}:1</div>
+          Headline goes here.{" "}
+          <span style={{ background: palette.accent, color: onAccent, padding: "0 6px" }}>
+            Punchline.
+          </span>
+        </div>
+        <p
+          className="font-mono text-xs mt-3 max-w-md"
+          style={{ color: palette.neutralDark, opacity: 0.75 }}
+        >
+          Body copy reads against the paper neutral. Accents call out the moments that matter.
+        </p>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <span
+            className="font-display font-bold text-sm px-4 py-2 border-2"
+            style={{
+              background: palette.primary,
+              color: onPrimary,
+              borderColor: palette.neutralDark,
+            }}
+          >
+            Primary CTA
+          </span>
+          <span
+            className="font-display font-bold text-sm px-4 py-2 border-2"
+            style={{
+              background: palette.neutralLight,
+              color: palette.neutralDark,
+              borderColor: palette.neutralDark,
+            }}
+          >
+            Secondary
+          </span>
+          <span
+            className="font-mono text-xs uppercase tracking-widest px-3 py-2 border-2"
+            style={{
+              background: palette.secondary,
+              color: bestForeground(palette.secondary),
+              borderColor: palette.neutralDark,
+            }}
+          >
+            Tag
+          </span>
         </div>
       </div>
     </div>
   );
 }
+
