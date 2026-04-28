@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PasswordsRouteImport } from './routes/passwords'
+import { Route as HeicRouteImport } from './routes/heic'
 import { Route as ColorsRouteImport } from './routes/colors'
 import { Route as IndexRouteImport } from './routes/index'
 
 const PasswordsRoute = PasswordsRouteImport.update({
   id: '/passwords',
   path: '/passwords',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HeicRoute = HeicRouteImport.update({
+  id: '/heic',
+  path: '/heic',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ColorsRoute = ColorsRouteImport.update({
@@ -32,30 +38,34 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/colors': typeof ColorsRoute
+  '/heic': typeof HeicRoute
   '/passwords': typeof PasswordsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/colors': typeof ColorsRoute
+  '/heic': typeof HeicRoute
   '/passwords': typeof PasswordsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/colors': typeof ColorsRoute
+  '/heic': typeof HeicRoute
   '/passwords': typeof PasswordsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/colors' | '/passwords'
+  fullPaths: '/' | '/colors' | '/heic' | '/passwords'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/colors' | '/passwords'
-  id: '__root__' | '/' | '/colors' | '/passwords'
+  to: '/' | '/colors' | '/heic' | '/passwords'
+  id: '__root__' | '/' | '/colors' | '/heic' | '/passwords'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ColorsRoute: typeof ColorsRoute
+  HeicRoute: typeof HeicRoute
   PasswordsRoute: typeof PasswordsRoute
 }
 
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/passwords'
       fullPath: '/passwords'
       preLoaderRoute: typeof PasswordsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/heic': {
+      id: '/heic'
+      path: '/heic'
+      fullPath: '/heic'
+      preLoaderRoute: typeof HeicRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/colors': {
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ColorsRoute: ColorsRoute,
+  HeicRoute: HeicRoute,
   PasswordsRoute: PasswordsRoute,
 }
 export const routeTree = rootRouteImport
