@@ -127,6 +127,32 @@ function Landing() {
   const heroRef = usePageEnter<HTMLDivElement>();
   const gridRef = useScrollReveal<HTMLDivElement>();
   const { broken, reset } = useKonamiBreak();
+  const [mobileBreak, setMobileBreak] = useState(0); // 0 = off, >0 = intensity
+  const tapState = useRef<{ count: number; last: number }>({ count: 0, last: 0 });
+
+  const handleAttitudeTap = () => {
+    // Only trigger triple-tap break on touch / small viewports
+    if (typeof window !== "undefined" && window.innerWidth >= 768 && !window.matchMedia("(pointer: coarse)").matches) {
+      return;
+    }
+    const now = Date.now();
+    if (now - tapState.current.last > 600) {
+      tapState.current.count = 0;
+    }
+    tapState.current.last = now;
+    tapState.current.count += 1;
+    if (tapState.current.count >= 3) {
+      tapState.current.count = 0;
+      setMobileBreak((n) => Math.min(n + 1, 8));
+    }
+  };
+
+  const isBroken = broken || mobileBreak > 0;
+  const intensity = mobileBreak > 0 ? 1 + (mobileBreak - 1) * 0.8 : 1;
+  const handleReset = () => {
+    reset();
+    setMobileBreak(0);
+  };
 
   return (
     <main className="min-h-[100dvh]">
