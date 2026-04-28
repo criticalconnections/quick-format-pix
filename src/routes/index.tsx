@@ -27,7 +27,7 @@ type Tool = {
   name: string;
   tagline: string;
   description: string;
-  to: "/heic" | "/colors" | "/passwords";
+  to: "/imgconvert" | "/colors" | "/passwords";
   cta: string;
   accent?: boolean;
 };
@@ -39,7 +39,7 @@ const TOOLS: Tool[] = [
     tagline: "for HEICs",
     description:
       "Apple's proprietary HEIC files get a brand-new identity. Bulk-convert to JPG, PNG, or WEBP without uploading a single byte.",
-    to: "/heic",
+    to: "/imgconvert",
     cta: "Relocate my HEICs →",
     accent: true,
   },
@@ -190,7 +190,7 @@ function Landing() {
         <footer className="mt-16 flex flex-col items-start justify-between gap-3 border-t-2 border-[var(--ink)] pt-6 font-mono text-xs uppercase tracking-widest sm:flex-row sm:items-center sm:mt-20">
           <span>※ Built with spite & semicolons</span>
           <div className="flex gap-4">
-            <Link to="/heic" className="underline-offset-4 hover:underline">
+            <Link to="/imgconvert" className="underline-offset-4 hover:underline">
               heic
             </Link>
             <Link to="/colors" className="underline-offset-4 hover:underline">
