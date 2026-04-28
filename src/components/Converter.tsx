@@ -460,7 +460,7 @@ export function Converter() {
       </div>
 
       {/* Controls */}
-      <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
+      <div data-reveal className="grid md:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8">
         <div className="brutal-card-sm p-5 sm:p-6">
           <div className="font-mono text-xs uppercase tracking-widest mb-3">01 / Output format</div>
           <div className="flex gap-2">
@@ -500,7 +500,7 @@ export function Converter() {
 
       {/* Action bar + overall progress */}
       {items.length > 0 && (
-        <div className="mt-6 sm:mt-8 space-y-4">
+        <div data-reveal-scroll className="mt-6 sm:mt-8 space-y-4">
           <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:items-center sm:justify-between">
             <div className="font-mono text-xs uppercase tracking-widest">
               {stats.done}/{stats.total} done
