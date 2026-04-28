@@ -191,7 +191,7 @@ export function Converter() {
     const arr = Array.from(files);
     const zips = arr.filter(isZipFile);
     const images = arr.filter((f) => !isZipFile(f) && isImageFile(f));
-    if (images.length) pushItems(images);
+    if (images.length) pushItems(images.map((file) => ({ file })));
     zips.forEach((z) => {
       void processZip(z);
     });
