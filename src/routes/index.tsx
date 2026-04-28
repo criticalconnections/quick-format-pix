@@ -1,4 +1,5 @@
 
+import { useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { BrokenScreen } from "@/components/BrokenScreen";
@@ -126,6 +127,32 @@ function Landing() {
   const heroRef = usePageEnter<HTMLDivElement>();
   const gridRef = useScrollReveal<HTMLDivElement>();
   const { broken, reset } = useKonamiBreak();
+  const [mobileBreak, setMobileBreak] = useState(0); // 0 = off, >0 = intensity
+  const tapState = useRef<{ count: number; last: number }>({ count: 0, last: 0 });
+
+  const handleAttitudeTap = () => {
+    // Only trigger triple-tap break on touch / small viewports
+    if (typeof window !== "undefined" && window.innerWidth >= 768 && !window.matchMedia("(pointer: coarse)").matches) {
+      return;
+    }
+    const now = Date.now();
+    if (now - tapState.current.last > 600) {
+      tapState.current.count = 0;
+    }
+    tapState.current.last = now;
+    tapState.current.count += 1;
+    if (tapState.current.count >= 3) {
+      tapState.current.count = 0;
+      setMobileBreak((n) => Math.min(n + 1, 8));
+    }
+  };
+
+  const isBroken = broken || mobileBreak > 0;
+  const intensity = mobileBreak > 0 ? 1 + (mobileBreak - 1) * 0.8 : 1;
+  const handleReset = () => {
+    reset();
+    setMobileBreak(0);
+  };
 
   return (
     <main className="min-h-[100dvh]">
@@ -158,7 +185,9 @@ function Landing() {
           <h1 className="mt-2 font-display text-[2.25rem] font-bold leading-[0.95] tracking-tight sm:mt-3 sm:text-6xl md:text-7xl">
             TINY TOOLS.{" "}
             <span
-              className="inline-block px-2 sm:px-3"
+              onClick={handleAttitudeTap}
+              onTouchStart={handleAttitudeTap}
+              className="inline-block cursor-pointer px-2 select-none sm:px-3"
               style={{ background: "var(--accent-lime)" }}
             >
               BIG ATTITUDE.
@@ -245,7 +274,7 @@ function Landing() {
           </span>
         </footer>
       </div>
-      {broken && <BrokenScreen onReset={reset} />}
+      {isBroken && <BrokenScreen key={mobileBreak} onReset={handleReset} intensity={intensity} />}
     </main>
   );
 }
