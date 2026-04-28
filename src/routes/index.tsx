@@ -68,138 +68,100 @@ function Landing() {
   const gridRef = useScrollReveal<HTMLDivElement>();
 
   return (
-    <main className="min-h-screen">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+    <main className="min-h-[100dvh]">
+      <div className="mx-auto flex min-h-[100dvh] max-w-6xl flex-col px-4 py-3 sm:px-6 sm:py-5">
         {/* Top bar */}
-        <header className="flex items-center justify-between">
+        <header className="flex shrink-0 items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
             <div
-              className="brutal-card-sm flex h-9 w-9 items-center justify-center font-mono text-xs font-bold sm:h-10 sm:w-10 sm:text-sm"
+              className="brutal-card-sm flex h-8 w-8 items-center justify-center font-mono text-[10px] font-bold sm:h-10 sm:w-10 sm:text-sm"
               style={{ background: "var(--accent-lime)" }}
             >
               T/S
             </div>
-            <span className="font-mono text-xs uppercase tracking-widest sm:text-sm">
+            <span className="font-mono text-[10px] uppercase tracking-widest sm:text-sm">
               toolshed.local
             </span>
           </div>
           <ThemeToggle />
         </header>
 
-        {/* Hero */}
-        <section ref={heroRef} className="mt-10 sm:mt-16">
-          <div className="font-mono text-xs uppercase tracking-[0.25em] text-[var(--ink)]/70">
-            ※ Est. right now · Browser-only · Zero accounts
+        {/* Hero — compressed */}
+        <section ref={heroRef} className="mt-4 shrink-0 sm:mt-6">
+          <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--ink)]/70 sm:text-xs">
+            ※ Browser-only · Zero accounts · Free forever*
           </div>
-          <h1 className="mt-4 font-display text-5xl font-bold leading-[0.95] tracking-tight sm:text-7xl md:text-8xl">
-            TINY TOOLS.
-            <br />
-            <span className="inline-block px-2 sm:px-3" style={{ background: "var(--accent-lime)" }}>
+          <h1 className="mt-2 font-display text-[2.25rem] font-bold leading-[0.95] tracking-tight sm:mt-3 sm:text-6xl md:text-7xl">
+            TINY TOOLS.{" "}
+            <span
+              className="inline-block px-2 sm:px-3"
+              style={{ background: "var(--accent-lime)" }}
+            >
               BIG ATTITUDE.
             </span>
           </h1>
-          <p className="mt-6 max-w-2xl font-display text-base leading-relaxed sm:text-lg">
-            A toolshed of dumb-simple things your browser can do without phoning
-            home. No uploads. No sign-ups. No 14-day free trials that quietly
-            renew at $79/mo.
+          <p className="mt-2 max-w-2xl font-display text-xs leading-snug sm:mt-3 sm:text-base">
+            Dumb-simple things your browser can do without phoning home.
           </p>
-
-          <div className="mt-8 flex flex-wrap items-center gap-3 font-mono text-xs uppercase tracking-widest">
-            <span className="brutal-card-sm px-3 py-1.5">100% local</span>
-            <span className="brutal-card-sm px-3 py-1.5">no tracking</span>
-            <span className="brutal-card-sm px-3 py-1.5">free forever*</span>
-            <span className="text-[var(--ink)]/50">*until we get bored</span>
-          </div>
         </section>
 
         {/* Divider */}
-        <div className="mt-14 flex items-center gap-4 sm:mt-20">
+        <div className="mt-4 flex shrink-0 items-center gap-3 sm:mt-6">
           <div className="h-[2px] flex-1 bg-[var(--ink)]" />
-          <span className="font-mono text-xs uppercase tracking-[0.3em]">
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] sm:text-xs">
             // The Tools
           </span>
           <div className="h-[2px] flex-1 bg-[var(--ink)]" />
         </div>
 
-        {/* Tool grid */}
+        {/* Tool grid — flex-1 so it fills remaining vertical space */}
         <section
           ref={gridRef}
-          className="mt-8 grid grid-cols-1 gap-6 sm:gap-7 md:grid-cols-3"
+          className="mt-4 grid flex-1 grid-cols-1 gap-3 sm:mt-5 sm:gap-5 md:grid-cols-3"
         >
           {TOOLS.map((tool) => (
-            <article
+            <Link
               key={tool.to}
+              to={tool.to}
               data-reveal-scroll
-              className="brutal-card group flex flex-col p-5 transition-transform duration-150 hover:-translate-x-[3px] hover:-translate-y-[3px] sm:p-6"
+              className="brutal-card group flex flex-col p-4 transition-transform duration-150 hover:-translate-x-[3px] hover:-translate-y-[3px] sm:p-5"
               style={
                 tool.accent ? { background: "var(--accent-lime)" } : undefined
               }
             >
               <div className="flex items-start justify-between">
-                <span className="font-mono text-xs font-bold tracking-widest opacity-70">
+                <span className="font-mono text-[10px] font-bold tracking-widest opacity-70 sm:text-xs">
                   №{tool.number}
                 </span>
                 <span className="font-mono text-[10px] uppercase tracking-widest opacity-60">
-                  /{tool.to.slice(1)}
+                  {tool.to}
                 </span>
               </div>
 
-              <h2 className="mt-5 font-display text-2xl font-bold leading-tight sm:text-3xl">
+              <h2 className="mt-3 font-display text-xl font-bold leading-tight sm:mt-4 sm:text-2xl">
                 {tool.name}
               </h2>
-              <div className="mt-1 font-mono text-xs uppercase tracking-widest opacity-70">
+              <div className="mt-0.5 font-mono text-[10px] uppercase tracking-widest opacity-70 sm:text-xs">
                 {tool.tagline}
               </div>
 
-              <p className="mt-4 flex-1 font-display text-sm leading-relaxed sm:text-base">
+              <p className="mt-2 flex-1 font-display text-xs leading-snug sm:mt-3 sm:text-sm">
                 {tool.description}
               </p>
 
-              <Link
-                to={tool.to}
-                className="brutal-card-sm mt-6 inline-flex items-center justify-between bg-[var(--paper)] px-4 py-3 font-mono text-xs font-bold uppercase tracking-widest transition-transform duration-150 hover:-translate-x-[2px] hover:-translate-y-[2px]"
-              >
+              <div className="mt-3 inline-flex items-center justify-between border-t-2 border-[var(--ink)] pt-2 font-mono text-[10px] font-bold uppercase tracking-widest sm:text-xs">
                 <span>{tool.cta}</span>
-              </Link>
-            </article>
+              </div>
+            </Link>
           ))}
         </section>
 
-        {/* Manifesto */}
-        <section className="mt-16 grid grid-cols-1 gap-6 sm:mt-24 md:grid-cols-3">
-          <div className="md:col-span-1">
-            <h3 className="font-display text-3xl font-bold leading-tight sm:text-4xl">
-              Why does this exist?
-            </h3>
-          </div>
-          <div className="space-y-4 font-display text-base leading-relaxed md:col-span-2">
-            <p>
-              Because every "free online converter" wants your email, your
-              firstborn, and a Pro subscription before it'll touch your photo of
-              a sandwich.
-            </p>
-            <p>
-              These tools run entirely in your browser. Files never leave your
-              machine. There is no "server." There is no "us." There is just
-              JavaScript doing its job, quietly.
-            </p>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="mt-16 flex flex-col items-start justify-between gap-3 border-t-2 border-[var(--ink)] pt-6 font-mono text-xs uppercase tracking-widest sm:flex-row sm:items-center sm:mt-20">
-          <span>※ Built with spite & semicolons</span>
-          <div className="flex gap-4">
-            <Link to="/imgconvert" className="underline-offset-4 hover:underline">
-              heic
-            </Link>
-            <Link to="/colors" className="underline-offset-4 hover:underline">
-              colors
-            </Link>
-            <Link to="/passwords" className="underline-offset-4 hover:underline">
-              passwords
-            </Link>
-          </div>
+        {/* Footer pinned at fold bottom */}
+        <footer className="mt-4 flex shrink-0 items-center justify-between gap-3 border-t-2 border-[var(--ink)] pt-3 font-mono text-[10px] uppercase tracking-widest sm:mt-5 sm:pt-4 sm:text-xs">
+          <span className="truncate">※ Built with spite & semicolons</span>
+          <span className="shrink-0 text-[var(--ink)]/60">
+            100% local · no tracking
+          </span>
         </footer>
       </div>
     </main>
