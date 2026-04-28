@@ -26,9 +26,15 @@ type Tool = {
   number: string;
   name: string;
   tagline: string;
-  description: string;
-  to: "/imgconvert" | "/colors" | "/passwords";
-  cta: string;
+  to:
+    | "/imgconvert"
+    | "/colors"
+    | "/passwords"
+    | "/compress"
+    | "/qr"
+    | "/strip"
+    | "/base64"
+    | "/favicon";
   accent?: boolean;
 };
 
@@ -36,31 +42,17 @@ const TOOLS: Tool[] = [
   {
     number: "01",
     name: "WITNESS PROTECTION",
-    tagline: "for HEICs",
-    description:
-      "Apple's proprietary HEIC files get a brand-new identity. Bulk-convert to JPG, PNG, or WEBP without uploading a single byte.",
+    tagline: "convert HEICs",
     to: "/imgconvert",
-    cta: "Relocate my HEICs →",
     accent: true,
   },
-  {
-    number: "02",
-    name: "COLOR HEIST",
-    tagline: "from any image",
-    description:
-      "Drop a photo. Walk away with its dominant swatches plus complementary, analogous, triadic, and monochrome palettes.",
-    to: "/colors",
-    cta: "Steal some colors →",
-  },
-  {
-    number: "03",
-    name: "PASSWORD FACTORY",
-    tagline: "industrial strength",
-    description:
-      "Crank out passwords with toggles for length, symbols, ambiguous characters, and bulk batches. The kind your bank wishes you used.",
-    to: "/passwords",
-    cta: "Make me unhackable →",
-  },
+  { number: "02", name: "COLOR HEIST", tagline: "steal palettes", to: "/colors" },
+  { number: "03", name: "PASSWORD FACTORY", tagline: "industrial strength", to: "/passwords" },
+  { number: "04", name: "GETAWAY DRIVER", tagline: "shrink the evidence", to: "/compress" },
+  { number: "05", name: "THE FENCE", tagline: "QR codes — move anything", to: "/qr" },
+  { number: "06", name: "THE ALIBI", tagline: "strip metadata", to: "/strip", accent: true },
+  { number: "07", name: "SHELL COMPANY", tagline: "base64 launderer", to: "/base64" },
+  { number: "08", name: "THE FORGER", tagline: "favicon generator", to: "/favicon" },
 ];
 
 function Landing() {
@@ -117,43 +109,41 @@ function Landing() {
           <div className="h-[2px] flex-1 bg-[var(--ink)]" />
         </div>
 
-        {/* Tool grid — flex-1 so it fills remaining vertical space */}
+        {/* Tool grid — 2 cols mobile, 4 cols desktop, fills remaining height */}
         <section
           ref={gridRef}
-          className="mt-4 grid flex-1 grid-cols-1 gap-3 sm:mt-5 sm:gap-5 md:grid-cols-3"
+          className="mt-4 grid flex-1 grid-cols-2 gap-2 sm:mt-5 sm:gap-3 md:grid-cols-4"
         >
           {TOOLS.map((tool) => (
             <Link
               key={tool.to}
               to={tool.to}
               data-reveal-scroll
-              className="brutal-card group flex flex-col p-4 transition-transform duration-150 hover:-translate-x-[3px] hover:-translate-y-[3px] sm:p-5"
+              className="brutal-card group flex flex-col justify-between p-3 transition-transform duration-150 hover:-translate-x-[3px] hover:-translate-y-[3px] sm:p-4"
               style={
                 tool.accent ? { background: "var(--accent-lime)" } : undefined
               }
             >
               <div className="flex items-start justify-between">
-                <span className="font-mono text-[10px] font-bold tracking-widest opacity-70 sm:text-xs">
+                <span className="font-mono text-[10px] font-bold tracking-widest opacity-70">
                   №{tool.number}
                 </span>
-                <span className="font-mono text-[10px] uppercase tracking-widest opacity-60">
+                <span className="font-mono text-[9px] uppercase tracking-widest opacity-50">
                   {tool.to}
                 </span>
               </div>
 
-              <h2 className="mt-3 font-display text-xl font-bold leading-tight sm:mt-4 sm:text-2xl">
-                {tool.name}
-              </h2>
-              <div className="mt-0.5 font-mono text-[10px] uppercase tracking-widest opacity-70 sm:text-xs">
-                {tool.tagline}
+              <div className="mt-3 sm:mt-4">
+                <h2 className="font-display text-base font-bold leading-[1.05] sm:text-lg md:text-xl">
+                  {tool.name}
+                </h2>
+                <div className="mt-1 font-mono text-[10px] uppercase tracking-widest opacity-70">
+                  {tool.tagline}
+                </div>
               </div>
 
-              <p className="mt-2 flex-1 font-display text-xs leading-snug sm:mt-3 sm:text-sm">
-                {tool.description}
-              </p>
-
-              <div className="mt-3 inline-flex items-center justify-between border-t-2 border-[var(--ink)] pt-2 font-mono text-[10px] font-bold uppercase tracking-widest sm:text-xs">
-                <span>{tool.cta}</span>
+              <div className="mt-3 flex items-center justify-end border-t-2 border-[var(--ink)] pt-1.5 font-mono text-[10px] font-bold uppercase tracking-widest opacity-80 transition-opacity group-hover:opacity-100">
+                Open →
               </div>
             </Link>
           ))}
