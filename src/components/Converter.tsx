@@ -390,10 +390,13 @@ export function Converter() {
     items.length,
     zipJobs.length,
   ]);
+  const setRefs = (node: HTMLDivElement | null) => {
+    pageRef.current = node;
+    revealRoot.current = node;
+  };
 
   return (
-    <div ref={pageRef}>
-      <div ref={revealRoot} className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-12">
+    <div ref={setRefs} className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-12">
       {/* Header */}
       <header className="mb-8 sm:mb-10" data-reveal>
         <div className="flex items-center justify-between mb-4 gap-3">
@@ -801,7 +804,6 @@ export function Converter() {
           JPG/PNG/WEBP freely. For PNG/JPG → HEIC, you'd need a native app.
         </div>
       </footer>
-      </div>
     </div>
   );
 }
