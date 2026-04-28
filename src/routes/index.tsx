@@ -75,7 +75,7 @@ const TOOLS: Tool[] = [
     name: "GETAWAY DRIVER",
     tagline: "shrink the evidence",
     description:
-      "Bulk image compressor. Drop the file, pick a quality, drive off with something a fraction of the size.",
+      "Bulk image compressor that doesn't ask where you're going. Drop your files, pick how clean you want the cut, drive off with something a fraction of the original size. Quality stays suspiciously intact.",
     cta: "Shrink it down →",
     to: "/compress",
   },
@@ -84,7 +84,7 @@ const TOOLS: Tool[] = [
     name: "THE FENCE",
     tagline: "move anything anywhere",
     description:
-      "QR codes for URLs, raw text, or WiFi creds. Custom colors, error correction, exports as PNG or SVG.",
+      "Need to pass off a URL, a WiFi password, or a contact card to someone across the room? The Fence turns it into a QR code nobody can trace back. Custom colors, error correction, PNG or SVG out the door.",
     cta: "Generate a QR →",
     to: "/qr",
   },
@@ -93,7 +93,7 @@ const TOOLS: Tool[] = [
     name: "THE ALIBI",
     tagline: "your photo was never there",
     description:
-      "Strip EXIF, GPS, camera, and timestamp metadata from JPGs and PNGs. Plausible deniability, one drop at a time.",
+      "Strip EXIF, GPS coordinates, camera fingerprints, and timestamps from your JPGs and PNGs. Plausible deniability, one drop at a time. The photo stays. The receipts don't.",
     cta: "Establish alibi →",
     to: "/strip",
     accent: true,
@@ -103,7 +103,7 @@ const TOOLS: Tool[] = [
     name: "SHELL COMPANY",
     tagline: "base64 launderer",
     description:
-      "Encode or decode text and files through base64. Drop a file, get a clean data URL out the back door.",
+      "Encode or decode text and files through base64 with zero paper trail. Drop a file, get a clean data URL out the back door. Decode someone else's and pretend you didn't.",
     cta: "Launder data →",
     to: "/base64",
   },
@@ -112,7 +112,7 @@ const TOOLS: Tool[] = [
     name: "THE FORGER",
     tagline: "favicon generator",
     description:
-      "Forge a complete favicon set from any image — every size browsers ask for, plus a multi-res ICO, packed in a zip.",
+      "Forge a complete favicon set from any image — every size browsers ask for, plus a multi-resolution ICO, all packed in a zip. Your site will look like it's been around for years.",
     cta: "Forge favicons →",
     to: "/favicon",
     accent: true,
