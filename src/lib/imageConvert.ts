@@ -45,16 +45,23 @@ async function fileToBitmap(file: File): Promise<{ bitmap: ImageBitmap; width: n
   if (reallyHeic) {
     try {
       const { default: heic2any } = await import("heic2any");
-      const out = await heic2any({ blob: file, toType: "image/png" });
+      // Re-wrap as a plain Blob with the correct MIME. Files extracted from
+      // a .zip arrive with type "" or "application/octet-stream", which some
+      // heic2any builds reject before they ever read the bytes.
+      const buf = await file.arrayBuffer();
+      const heicBlob = new Blob([buf], { type: "image/heic" });
+      const out = await heic2any({ blob: heicBlob, toType: "image/png" });
       blob = Array.isArray(out) ? out[0] : out;
     } catch (err) {
-      const msg = (err as Error)?.message || String(err);
-      if (/libheif|format not supported|ERR_LIBHEIF/i.test(msg)) {
+      // heic2any rejects with a plain object { code, subcode } — not an Error.
+      const e = err as { message?: string; code?: unknown; subcode?: unknown };
+      const msg = e?.message || (e?.code !== undefined ? `libheif code ${String(e.code)}/${String(e.subcode)}` : String(err));
+      if (/libheif|format not supported|ERR_LIBHEIF|parse HEIF|code/i.test(msg)) {
         throw new Error(
-          "HEIC variant not supported by the in-browser decoder (likely HEVC 10-bit or HDR). Try re-exporting from Photos as 'Most Compatible'.",
+          "HEIC decoder couldn't parse this file (often HEVC 10-bit, HDR, or a Live Photo). Re-export from Photos as 'Most Compatible' (JPEG) or open on a Mac and export as HEIC 8-bit.",
         );
       }
-      throw err;
+      throw new Error(msg);
     }
   } else if (looksHeic) {
     // Misnamed file — try the browser's native decoder directly.
