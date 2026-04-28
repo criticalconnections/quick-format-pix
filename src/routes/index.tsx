@@ -26,6 +26,8 @@ type Tool = {
   number: string;
   name: string;
   tagline: string;
+  description: string;
+  cta: string;
   to:
     | "/imgconvert"
     | "/colors"
@@ -42,17 +44,79 @@ const TOOLS: Tool[] = [
   {
     number: "01",
     name: "WITNESS PROTECTION",
-    tagline: "convert HEICs",
+    tagline: "for HEICs",
+    description:
+      "Apple's proprietary HEIC files get a brand-new identity. Bulk-convert to JPG, PNG, or WEBP without uploading a single byte.",
+    cta: "Relocate my HEICs →",
     to: "/imgconvert",
     accent: true,
   },
-  { number: "02", name: "COLOR HEIST", tagline: "steal palettes", to: "/colors" },
-  { number: "03", name: "PASSWORD FACTORY", tagline: "industrial strength", to: "/passwords" },
-  { number: "04", name: "GETAWAY DRIVER", tagline: "shrink the evidence", to: "/compress" },
-  { number: "05", name: "THE FENCE", tagline: "QR codes — move anything", to: "/qr" },
-  { number: "06", name: "THE ALIBI", tagline: "strip metadata", to: "/strip", accent: true },
-  { number: "07", name: "SHELL COMPANY", tagline: "base64 launderer", to: "/base64" },
-  { number: "08", name: "THE FORGER", tagline: "favicon generator", to: "/favicon" },
+  {
+    number: "02",
+    name: "COLOR HEIST",
+    tagline: "from any image",
+    description:
+      "Drop a photo. Walk away with its dominant swatches plus complementary, analogous, triadic, and monochrome palettes.",
+    cta: "Steal some colors →",
+    to: "/colors",
+  },
+  {
+    number: "03",
+    name: "PASSWORD FACTORY",
+    tagline: "industrial strength",
+    description:
+      "Crank out passwords with toggles for length, symbols, ambiguous characters, and bulk batches. The kind your bank wishes you used.",
+    cta: "Make me unhackable →",
+    to: "/passwords",
+    accent: true,
+  },
+  {
+    number: "04",
+    name: "GETAWAY DRIVER",
+    tagline: "shrink the evidence",
+    description:
+      "Bulk image compressor. Drop the file, pick a quality, drive off with something a fraction of the size.",
+    cta: "Shrink it down →",
+    to: "/compress",
+  },
+  {
+    number: "05",
+    name: "THE FENCE",
+    tagline: "move anything anywhere",
+    description:
+      "QR codes for URLs, raw text, or WiFi creds. Custom colors, error correction, exports as PNG or SVG.",
+    cta: "Generate a QR →",
+    to: "/qr",
+  },
+  {
+    number: "06",
+    name: "THE ALIBI",
+    tagline: "your photo was never there",
+    description:
+      "Strip EXIF, GPS, camera, and timestamp metadata from JPGs and PNGs. Plausible deniability, one drop at a time.",
+    cta: "Establish alibi →",
+    to: "/strip",
+    accent: true,
+  },
+  {
+    number: "07",
+    name: "SHELL COMPANY",
+    tagline: "base64 launderer",
+    description:
+      "Encode or decode text and files through base64. Drop a file, get a clean data URL out the back door.",
+    cta: "Launder data →",
+    to: "/base64",
+  },
+  {
+    number: "08",
+    name: "THE FORGER",
+    tagline: "favicon generator",
+    description:
+      "Forge a complete favicon set from any image — every size browsers ask for, plus a multi-res ICO, packed in a zip.",
+    cta: "Forge favicons →",
+    to: "/favicon",
+    accent: true,
+  },
 ];
 
 function Landing() {
@@ -123,16 +187,21 @@ function Landing() {
               key={tool.to}
               to={tool.to}
               data-reveal-scroll
-              className="brutal-card group flex flex-col justify-between p-3 transition-transform duration-150 hover:-translate-x-[3px] hover:-translate-y-[3px] sm:p-4"
+              className="brutal-card group flex flex-col p-3 transition-transform duration-150 hover:-translate-x-[3px] hover:-translate-y-[3px] sm:p-4"
               style={
-                tool.accent ? { background: "var(--accent-lime)" } : undefined
+                tool.accent
+                  ? {
+                      background: "var(--accent-lime)",
+                      color: "var(--accent-lime-foreground)",
+                    }
+                  : undefined
               }
             >
               <div className="flex items-start justify-between">
                 <span className="font-mono text-[10px] font-bold tracking-widest opacity-70">
                   №{tool.number}
                 </span>
-                <span className="font-mono text-[9px] uppercase tracking-widest opacity-50">
+                <span className="font-mono text-[9px] uppercase tracking-widest opacity-60">
                   {tool.to}
                 </span>
               </div>
@@ -146,8 +215,19 @@ function Landing() {
                 </div>
               </div>
 
-              <div className="mt-3 flex items-center justify-end border-t-2 border-[var(--ink)] pt-1.5 font-mono text-[10px] font-bold uppercase tracking-widest opacity-80 transition-opacity group-hover:opacity-100">
-                Open →
+              <p className="mt-2 hidden flex-1 font-display text-[11px] leading-snug opacity-90 sm:mt-3 sm:block sm:text-xs">
+                {tool.description}
+              </p>
+
+              <div
+                className="mt-3 inline-flex items-center justify-between border-t-2 pt-1.5 font-mono text-[10px] font-bold uppercase tracking-widest"
+                style={{
+                  borderColor: tool.accent
+                    ? "var(--accent-lime-foreground)"
+                    : "var(--ink)",
+                }}
+              >
+                <span className="truncate">{tool.cta}</span>
               </div>
             </Link>
           ))}
