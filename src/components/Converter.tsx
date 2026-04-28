@@ -296,6 +296,7 @@ export function Converter() {
       status: "error",
       progress: 0,
       error: lastError?.message ?? "Conversion failed",
+      decoderError: lastError ? `${lastError.name}: ${lastError.message}` : "Unknown error",
     });
   };
 
