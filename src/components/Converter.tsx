@@ -75,35 +75,99 @@ export function Converter() {
     if (e.dataTransfer.files?.length) addFiles(e.dataTransfer.files);
   };
 
+  const updateItem = (id: string, patch: Partial<Item>) =>
+    setItems((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+
+  // Convert one item with auto-retry. Animates a pseudo-progress bar
+  // since canvas conversion is synchronous (no real progress events).
+  const processItem = async (id: string) => {
+    const q = quality / 100;
+    const current = items.find((i) => i.id === id);
+    if (!current) return;
+
+    let attempt = 0;
+    let lastError: Error | null = null;
+
+    while (attempt <= MAX_AUTO_RETRIES) {
+      attempt++;
+      updateItem(id, {
+        status: "converting",
+        progress: 5,
+        attempts: attempt,
+        error: undefined,
+      });
+
+      // Simulated progress ticker (canvas conversions are sync; this gives
+      // visual feedback for large files which still take time to decode).
+      let pct = 5;
+      const ticker = window.setInterval(() => {
+        pct = Math.min(pct + Math.random() * 12, 90);
+        setItems((prev) =>
+          prev.map((p) =>
+            p.id === id && p.status === "converting" ? { ...p, progress: pct } : p
+          )
+        );
+      }, 150);
+
+      try {
+        const file = items.find((i) => i.id === id)?.file ?? current.file;
+        const { blob, name } = await convertImage(file, format, q);
+        clearInterval(ticker);
+        updateItem(id, {
+          status: "done",
+          progress: 100,
+          outBlob: blob,
+          outName: name,
+          outSize: blob.size,
+          error: undefined,
+        });
+        return;
+      } catch (err) {
+        clearInterval(ticker);
+        lastError = err as Error;
+        if (attempt <= MAX_AUTO_RETRIES) {
+          updateItem(id, {
+            status: "queued",
+            progress: 0,
+            error: `Retry ${attempt}/${MAX_AUTO_RETRIES}: ${lastError.message}`,
+          });
+          // brief backoff
+          await new Promise((r) => setTimeout(r, 400 * attempt));
+        }
+      }
+    }
+
+    updateItem(id, {
+      status: "error",
+      progress: 0,
+      error: lastError?.message ?? "Conversion failed",
+    });
+  };
+
   const convertAll = async () => {
     setBusy(true);
-    const q = quality / 100;
-    for (const item of items) {
-      if (item.status === "done") continue;
-      setItems((prev) =>
-        prev.map((p) => (p.id === item.id ? { ...p, status: "converting" } : p))
-      );
-      try {
-        const { blob, name } = await convertImage(item.file, format, q);
-        setItems((prev) =>
-          prev.map((p) =>
-            p.id === item.id
-              ? { ...p, status: "done", outBlob: blob, outName: name, outSize: blob.size }
-              : p
-          )
-        );
-      } catch (err) {
-        setItems((prev) =>
-          prev.map((p) =>
-            p.id === item.id
-              ? { ...p, status: "error", error: (err as Error).message }
-              : p
-          )
-        );
-      }
+    const queue = items.filter((i) => i.status !== "done").map((i) => i.id);
+    for (const id of queue) {
+      await processItem(id);
     }
     setBusy(false);
   };
+
+  const retryItem = async (id: string) => {
+    setBusy(true);
+    await processItem(id);
+    setBusy(false);
+  };
+
+  const retryFailed = async () => {
+    setBusy(true);
+    const failedIds = items.filter((i) => i.status === "error").map((i) => i.id);
+    for (const id of failedIds) {
+      await processItem(id);
+    }
+    setBusy(false);
+  };
+
 
   const downloadOne = (item: Item) => {
     if (!item.outBlob || !item.outName) return;
