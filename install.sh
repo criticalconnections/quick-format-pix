@@ -45,7 +45,7 @@ fail()  { printf "  %s✗%s %s\n"            "$RED"  "$RESET" "$1" >&2; }
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-PORT="${TOOLSHED_PORT:-8080}"
+PORT="${TOOLSHED_PORT:-8665}"
 MODE="${1:-}"
 IMAGE_NAME="toolshed"
 CONTAINER_NAME="toolshed"
@@ -60,7 +60,7 @@ ${BOLD}usage:${RESET} ./install.sh [docker|self-hosted|stop|--help]
   (no args)      interactive picker
 
 ${BOLD}env:${RESET}
-  TOOLSHED_PORT  port to bind on host (default: 8080)
+  TOOLSHED_PORT  port to bind on host (default: 8665)
 EOF
 }
 
@@ -125,7 +125,7 @@ run_docker() {
   docker run -d \
     --name "$CONTAINER_NAME" \
     --restart unless-stopped \
-    -p "${PORT}:8080" \
+    -p "${PORT}:8665" \
     "$IMAGE_NAME" >/dev/null
   ok "container '${CONTAINER_NAME}' is up"
 
