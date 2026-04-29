@@ -173,7 +173,7 @@ function DocsPage() {
             </p>
             <CodeBlock
               label="// clone & enter"
-              code={`git clone https://github.com/criticalconnections/quick-format-pix.git toolshed
+              code={`git clone https://github.com/criticalconnections/toolshed.git toolshed
 cd toolshed`}
             />
           </Step>
