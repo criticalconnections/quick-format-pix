@@ -170,7 +170,15 @@ function Landing() {
               toolshed.local
             </span>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/docs"
+              className="brutal-card-sm bg-paper px-2 py-1.5 font-mono text-[10px] uppercase tracking-widest hover:bg-[var(--accent-lime)] sm:px-3 sm:text-xs"
+            >
+              Docs
+            </Link>
+            <ThemeToggle />
+          </div>
         </header>
 
         {/* Hero — compressed */}
@@ -264,9 +272,16 @@ function Landing() {
         {/* Footer pinned at fold bottom */}
         <footer className="mt-4 flex shrink-0 items-center justify-between gap-3 border-t-2 border-[var(--ink)] pt-3 font-mono text-[10px] uppercase tracking-widest sm:mt-5 sm:pt-4 sm:text-xs">
           <span className="truncate">※ Built with spite & semicolons</span>
-          <span className="shrink-0 text-[var(--ink)]/60">
-            100% local · no tracking
-          </span>
+          <div className="flex shrink-0 items-center gap-3 text-[var(--ink)]/60">
+            <Link
+              to="/docs"
+              className="hover:text-[var(--ink)] hover:underline underline-offset-2"
+            >
+              Self-host →
+            </Link>
+            <span aria-hidden>·</span>
+            <span>100% local · no tracking</span>
+          </div>
         </footer>
       </div>
       {isBroken && <BrokenScreen key={mobileBreak} onReset={handleReset} intensity={intensity} />}

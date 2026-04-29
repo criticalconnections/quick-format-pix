@@ -14,6 +14,7 @@ import { Route as QrRouteImport } from './routes/qr'
 import { Route as PasswordsRouteImport } from './routes/passwords'
 import { Route as ImgconvertRouteImport } from './routes/imgconvert'
 import { Route as FaviconRouteImport } from './routes/favicon'
+import { Route as DocsRouteImport } from './routes/docs'
 import { Route as CompressRouteImport } from './routes/compress'
 import { Route as ColorsRouteImport } from './routes/colors'
 import { Route as Base64RouteImport } from './routes/base64'
@@ -44,6 +45,11 @@ const FaviconRoute = FaviconRouteImport.update({
   path: '/favicon',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CompressRoute = CompressRouteImport.update({
   id: '/compress',
   path: '/compress',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/base64': typeof Base64Route
   '/colors': typeof ColorsRoute
   '/compress': typeof CompressRoute
+  '/docs': typeof DocsRoute
   '/favicon': typeof FaviconRoute
   '/imgconvert': typeof ImgconvertRoute
   '/passwords': typeof PasswordsRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/base64': typeof Base64Route
   '/colors': typeof ColorsRoute
   '/compress': typeof CompressRoute
+  '/docs': typeof DocsRoute
   '/favicon': typeof FaviconRoute
   '/imgconvert': typeof ImgconvertRoute
   '/passwords': typeof PasswordsRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/base64': typeof Base64Route
   '/colors': typeof ColorsRoute
   '/compress': typeof CompressRoute
+  '/docs': typeof DocsRoute
   '/favicon': typeof FaviconRoute
   '/imgconvert': typeof ImgconvertRoute
   '/passwords': typeof PasswordsRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/base64'
     | '/colors'
     | '/compress'
+    | '/docs'
     | '/favicon'
     | '/imgconvert'
     | '/passwords'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/base64'
     | '/colors'
     | '/compress'
+    | '/docs'
     | '/favicon'
     | '/imgconvert'
     | '/passwords'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/base64'
     | '/colors'
     | '/compress'
+    | '/docs'
     | '/favicon'
     | '/imgconvert'
     | '/passwords'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   Base64Route: typeof Base64Route
   ColorsRoute: typeof ColorsRoute
   CompressRoute: typeof CompressRoute
+  DocsRoute: typeof DocsRoute
   FaviconRoute: typeof FaviconRoute
   ImgconvertRoute: typeof ImgconvertRoute
   PasswordsRoute: typeof PasswordsRoute
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FaviconRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/compress': {
       id: '/compress'
       path: '/compress'
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   Base64Route: Base64Route,
   ColorsRoute: ColorsRoute,
   CompressRoute: CompressRoute,
+  DocsRoute: DocsRoute,
   FaviconRoute: FaviconRoute,
   ImgconvertRoute: ImgconvertRoute,
   PasswordsRoute: PasswordsRoute,
