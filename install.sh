@@ -145,6 +145,48 @@ stop_docker() {
 }
 
 # ─── self-hosted path ─────────────────────────────────────────────────────────
+ensure_bun_prereqs() {
+  local missing=()
+  command -v curl  >/dev/null 2>&1 || missing+=("curl")
+  command -v unzip >/dev/null 2>&1 || missing+=("unzip")
+  (( ${#missing[@]} == 0 )) && return 0
+
+  warn "missing prerequisites for the bun installer: ${missing[*]}"
+
+  local installer=""
+  if   command -v apt-get >/dev/null 2>&1; then installer="apt-get"
+  elif command -v dnf     >/dev/null 2>&1; then installer="dnf"
+  elif command -v pacman  >/dev/null 2>&1; then installer="pacman"
+  elif command -v apk     >/dev/null 2>&1; then installer="apk"
+  elif command -v brew    >/dev/null 2>&1; then installer="brew"
+  fi
+
+  if [[ -z "$installer" ]]; then
+    fail "install ${missing[*]} via your package manager and re-run."
+    exit 1
+  fi
+
+  local sudo=""
+  [[ $EUID -ne 0 ]] && command -v sudo >/dev/null 2>&1 && sudo="sudo"
+
+  printf "  %s?%s install with %s%s%s? [Y/n]: " "$CYAN" "$RESET" "$BOLD" "$installer" "$RESET"
+  local ans
+  read -r ans </dev/tty || ans="y"
+  case "${ans,,}" in
+    n|no) fail "install ${missing[*]} and re-run."; exit 1 ;;
+  esac
+
+  step "installing ${missing[*]} via ${installer}"
+  case "$installer" in
+    apt-get) $sudo apt-get update -y && $sudo apt-get install -y "${missing[@]}" ;;
+    dnf)     $sudo dnf install -y "${missing[@]}" ;;
+    pacman)  $sudo pacman -Sy --noconfirm "${missing[@]}" ;;
+    apk)     $sudo apk add --no-cache "${missing[@]}" ;;
+    brew)    brew install "${missing[@]}" ;;
+  esac
+  ok "prerequisites installed"
+}
+
 ensure_bun() {
   if command -v bun >/dev/null 2>&1; then
     ok "bun detected ($(bun --version))"
@@ -157,6 +199,7 @@ ensure_bun() {
   case "${ans,,}" in
     n|no) fail "bun is required. install: https://bun.sh"; exit 1 ;;
   esac
+  ensure_bun_prereqs
   step "installing bun"
   curl -fsSL https://bun.sh/install | bash
   # shellcheck disable=SC1091
